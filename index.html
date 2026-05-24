@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista della Spesa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/glass.css">
+</head>
+<body>
+    <div class="app-container glass-panel">
+        <header>
+            <h1>La Spesa 🛒</h1>
+            <p class="subtitle">Scrivi cosa ti serve</p>
+        </header>
+        
+        <div class="input-group">
+            <input type="text" id="item-input" placeholder="Es. Pane, Latte, Uova..." autocomplete="off">
+            <button id="add-btn">Aggiungi</button>
+        </div>
+
+        <ul id="shopping-list"></ul>
+    </div>
+
+    <!-- Fondamentale l'attributo type="module" -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

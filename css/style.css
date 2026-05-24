@@ -1,0 +1,132 @@
+/* css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    /* Sfondo sfumato per far risaltare il Glassmorphism */
+    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    color: #333;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+    border-radius: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 2.2rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.subtitle {
+    color: #555;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Gruppo Input */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+}
+
+input {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Lista */
+ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.item-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.item-icon {
+    font-size: 1.5rem;
+}
+
+.item-text {
+    transition: all 0.3s ease;
+}
+
+.completed .item-text {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.delete-btn {
+    background: #ff4757;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Mostra il pulsante elimina al passaggio del mouse o sempre su mobile */
+li:hover .delete-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (max-width: 768px) {
+    .delete-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+}
