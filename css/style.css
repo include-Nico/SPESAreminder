@@ -6,40 +6,44 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
+    /* Evita l'highlight blu fastidioso al tocco su schermi touch */
+    -webkit-tap-highlight-color: transparent; 
 }
 
 body {
     min-height: 100vh;
-    /* Sfondo sfumato per far risaltare il Glassmorphism */
     background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 2rem 1rem;
     color: #333;
 }
 
 .app-container {
     width: 100%;
-    max-width: 500px;
-    padding: 2rem;
-    border-radius: 20px;
+    max-width: 450px; /* Misura tipica di uno schermo mobile */
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
     text-align: center;
     margin-bottom: 2rem;
+    margin-top: 1rem;
 }
 
 h1 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     color: #2c3e50;
     font-weight: 600;
+    letter-spacing: -1px;
 }
 
 .subtitle {
-    color: #555;
-    font-size: 0.9rem;
+    color: #444;
+    font-size: 0.95rem;
     margin-top: 0.5rem;
 }
 
@@ -47,12 +51,12 @@ h1 {
 .input-group {
     display: flex;
     gap: 10px;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 input {
     flex: 1;
-    padding: 12px 15px;
+    padding: 15px;
     border: none;
     border-radius: 12px;
     font-size: 1rem;
@@ -61,7 +65,7 @@ input {
 }
 
 button {
-    padding: 12px 20px;
+    padding: 15px 20px;
     border: none;
     border-radius: 12px;
     font-size: 1rem;
@@ -75,15 +79,16 @@ ul {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    padding-bottom: 2rem;
 }
 
 li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    border-radius: 12px;
+    padding: 15px 18px;
+    border-radius: 15px;
     transition: all 0.3s ease;
 }
 
@@ -91,16 +96,18 @@ li {
     display: flex;
     align-items: center;
     gap: 15px;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     cursor: pointer;
+    flex: 1; /* Occupa tutto lo spazio a sinistra del cestino */
 }
 
 .item-icon {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
 }
 
 .item-text {
     transition: all 0.3s ease;
+    word-break: break-word;
 }
 
 .completed .item-text {
@@ -108,25 +115,31 @@ li {
     color: #888;
 }
 
+.completed .item-icon {
+    opacity: 0.5;
+}
+
 .delete-btn {
     background: #ff4757;
     color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    opacity: 0;
-    visibility: hidden;
-}
-
-/* Mostra il pulsante elimina al passaggio del mouse o sempre su mobile */
-li:hover .delete-btn {
-    opacity: 1;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    /* Su mobile il pulsante elimina è sempre visibile */
+    opacity: 1; 
     visibility: visible;
 }
 
-@media (max-width: 768px) {
-    .delete-btn {
-        opacity: 1;
-        visibility: visible;
+/* Modifiche per visualizzazione su Desktop (schermi grandi) */
+@media (min-width: 480px) {
+    body {
+        padding: 2rem;
+    }
+    .app-container {
+        min-height: auto;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     }
 }
