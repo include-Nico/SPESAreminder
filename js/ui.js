@@ -1,21 +1,35 @@
 // js/ui.js
 
-// Dizionario massivamente espanso utilizzando Espressioni Regolari (Regex)
+// Funzione intelligente per separare quantità e nome prodotto
+export function estraiQuantita(testo) {
+    // Cerca numeri (anche con virgola) seguiti opzionalmente da unità di misura
+    // Es: "3", "1.5 kg", "500g", "2 pacchi di"
+    const regex = /^(\d+(?:[.,]\d+)?\s*(?:kg|g|l|ml|pz|litri|chili|etti|pacchi|bottiglie)?)\s+(?:di\s+)?(.*)/i;
+    const match = testo.trim().match(regex);
+    
+    if (match) {
+        return {
+            quantita: match[1],
+            nomeProdotto: match[2].charAt(0).toUpperCase() + match[2].slice(1) // Mette la maiuscola al prodotto
+        };
+    }
+    return {
+        quantita: null,
+        nomeProdotto: testo.charAt(0).toUpperCase() + testo.slice(1)
+    };
+}
+
+// Dizionario espanso (invariato)
 export function getIconForWord(word) {
     const w = word.toLowerCase();
 
-    // 🥩 Carni e Salumi
     if(w.match(/pollo|tacchino|faraona|cappone/)) return '🍗';
     if(w.match(/salum|prosciutt|salam|mortadella|pancetta|speck|bresaola|coppa|guanciale/)) return '🥓';
     if(w.match(/carne|trita|manzo|hamburger|bistecca|vitello|tagliata|costata|filetto|fettine/)) return '🥩';
     if(w.match(/maiale|salsicci|cotechino|lonza/)) return '🐖';
-
-    // 🐟 Pesce e Frutti di Mare
     if(w.match(/sushi|sashimi|nigiri|uramaki/)) return '🍣';
     if(w.match(/salmon|tonno|pesce|merluzz|orat|branzin|spigol|platessa|acciugh|sardin|alici/)) return '🐟';
     if(w.match(/gamber|cozze|vongol|calamar|seppi|polp|scamp|ostrich/)) return '🦐';
-
-    // 🥤 Bevande
     if(w.match(/coca|fanta|sprite|bibit|estathe|pepsi|chinotto|cedrata/)) return '🥤';
     if(w.match(/the|tè|tea|camomill|infus|tisan/)) return '🍵';
     if(w.match(/birra|ceres|tennent|ichnusa|moretti/)) return '🍺';
@@ -23,16 +37,12 @@ export function getIconForWord(word) {
     if(w.match(/acqua/)) return '💧';
     if(w.match(/succ|ace/)) return '🧃';
     if(w.match(/caff|ginseng/)) return '☕';
-
-    // 🧴 Casa, Igiene e Farmacia
     if(w.match(/ammorbid|shampoo|bagnoschiuma|balsamo|crema|bagnodoccia|deodorante/)) return '🧴';
     if(w.match(/cotton|fioc|cerott|disinfettant|medicinal|tachipirina|aspirina|moment/)) return '🩹'; 
     if(w.match(/carta|scottex|igienic|tovagliol|fazzolett|rotol/)) return '🧻';
     if(w.match(/sapon|detersiv|sgrassator|lavastovigli|candeggina|viakal|vetril|smacchiatore/)) return '🧼';
     if(w.match(/spugn|stracci|panni/)) return '🧽';
     if(w.match(/dentifrici|spazzolin|colluttorio/)) return '🪥';
-
-    // 🍞 Base (Latticini, Frutta, Verdura, Forno, Dispensa)
     if(w.match(/latte|panna/)) return '🥛';
     if(w.match(/pane|panin|baguette|focaccia|piadina|crackers|grissin/)) return '🍞';
     if(w.match(/uov/)) return '🥚';
@@ -56,43 +66,46 @@ export function getIconForWord(word) {
     if(w.match(/sale|zuccher|pepe|spezi|origan|basilic/)) return '🧂';
     if(w.match(/farin|lievit/)) return '🌾';
     
-    // Icona di default (segnaposto elegante)
     return '📌'; 
 }
 
-// Rendering della lista HTML
+// Rendering della lista HTML con il Badge per i numeri
 export function renderLista(lista, container, onToggle) {
-    // Svuota l'HTML precedente per evitare duplicati
     container.innerHTML = '';
 
     lista.forEach(item => {
-        // Crea il contenitore del singolo prodotto
         const li = document.createElement('li');
-        
-        // Se è completato, aggiunge la classe CSS per l'effetto sbarrato
         if (item.completato) li.classList.add('completed');
 
-        // L'intero blocco del prodotto diventa l'area cliccabile
         li.style.cursor = 'pointer';
         li.addEventListener('click', () => onToggle(item.id));
 
         const contentDiv = document.createElement('div');
         contentDiv.classList.add('item-content');
         
+        // Estrapola quantità e nome dal testo originale
+        const info = estraiQuantita(item.testo);
+
         const iconSpan = document.createElement('span');
         iconSpan.classList.add('item-icon');
-        iconSpan.textContent = getIconForWord(item.testo);
+        // Cerca l'icona usando il nome pulito (senza il numero)
+        iconSpan.textContent = getIconForWord(info.nomeProdotto);
+        contentDiv.appendChild(iconSpan);
+
+        // Se ha trovato un numero, crea il badge
+        if (info.quantita) {
+            const qtySpan = document.createElement('span');
+            qtySpan.classList.add('item-qty');
+            qtySpan.textContent = info.quantita;
+            contentDiv.appendChild(qtySpan);
+        }
 
         const textSpan = document.createElement('span');
         textSpan.classList.add('item-text');
-        textSpan.textContent = item.testo;
-
-        // Assembla l'elemento
-        contentDiv.appendChild(iconSpan);
+        textSpan.textContent = info.nomeProdotto;
         contentDiv.appendChild(textSpan);
+
         li.appendChild(contentDiv);
-        
-        // Inserisce l'elemento finito nel contenitore principale
         container.appendChild(li);
     });
 }

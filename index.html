@@ -15,13 +15,17 @@
         </header>
         
         <div class="input-group">
-            <input type="text" id="item-input" placeholder="Es. Pane, Latte, Uova..." autocomplete="off">
+            <button id="mic-btn" class="mic-btn" aria-label="Usa il microfono">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+            </button>
+            <input type="text" id="item-input" placeholder="Es. 3 Latte, 2kg Mele..." autocomplete="off">
             <button id="add-btn">Aggiungi</button>
         </div>
 
         <ul id="shopping-list"></ul>
 
-        <!-- Nuova pulsantiera ridisegnata -->
         <div class="actions-group">
             <button id="share-whatsapp-btn" class="whatsapp-btn" aria-label="Invia su WhatsApp">
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
