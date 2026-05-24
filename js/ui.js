@@ -1,69 +1,80 @@
 // js/ui.js
 
-// Esportiamo la funzione così da usarla anche per il messaggio WhatsApp
+// Dizionario massivamente espanso utilizzando Espressioni Regolari (Regex)
 export function getIconForWord(word) {
     const w = word.toLowerCase();
 
     // 🥩 Carni e Salumi
-    if(w.includes('pollo') || w.includes('tacchino')) return '🍗';
-    if(w.includes('salum') || w.includes('prosciutt') || w.includes('salam') || w.includes('mortadella') || w.includes('pancetta')) return '🥓';
-    if(w.includes('carne') || w.includes('trita') || w.includes('manzo') || w.includes('hamburger') || w.includes('bistecca')) return '🥩';
-    if(w.includes('maiale') || w.includes('salsicci')) return '🐖';
+    if(w.match(/pollo|tacchino|faraona|cappone/)) return '🍗';
+    if(w.match(/salum|prosciutt|salam|mortadella|pancetta|speck|bresaola|coppa|guanciale/)) return '🥓';
+    if(w.match(/carne|trita|manzo|hamburger|bistecca|vitello|tagliata|costata|filetto|fettine/)) return '🥩';
+    if(w.match(/maiale|salsicci|cotechino|lonza/)) return '🐖';
 
-    // 🐟 Pesce
-    if(w.includes('sushi')) return '🍣';
-    if(w.includes('salmon') || w.includes('tonno') || w.includes('pesce') || w.includes('merluzzo') || w.includes('orata')) return '🐟';
-    if(w.includes('gamber') || w.includes('cozze') || w.includes('vongole') || w.includes('calamar')) return '🦐';
+    // 🐟 Pesce e Frutti di Mare
+    if(w.match(/sushi|sashimi|nigiri|uramaki/)) return '🍣';
+    if(w.match(/salmon|tonno|pesce|merluzz|orat|branzin|spigol|platessa|acciugh|sardin|alici/)) return '🐟';
+    if(w.match(/gamber|cozze|vongol|calamar|seppi|polp|scamp|ostrich/)) return '🦐';
 
     // 🥤 Bevande
-    if(w.includes('coca') || w.includes('fanta') || w.includes('sprite') || w.includes('bibit') || w.includes('estathe')) return '🥤';
-    if(w.includes('the') || w.includes('tè') || w.includes('tea') || w.includes('camomilla') || w.includes('infuso')) return '🍵';
-    if(w.includes('birra')) return '🍺';
-    if(w.includes('vino')) return '🍷';
-    if(w.includes('acqua')) return '💧';
-    if(w.includes('succo')) return '🧃';
-    if(w.includes('caff')) return '☕';
+    if(w.match(/coca|fanta|sprite|bibit|estathe|pepsi|chinotto|cedrata/)) return '🥤';
+    if(w.match(/the|tè|tea|camomill|infus|tisan/)) return '🍵';
+    if(w.match(/birra|ceres|tennent|ichnusa|moretti/)) return '🍺';
+    if(w.match(/vino|spumante|prosecco|champagne/)) return '🍷';
+    if(w.match(/acqua/)) return '💧';
+    if(w.match(/succ|ace/)) return '🧃';
+    if(w.match(/caff|ginseng/)) return '☕';
 
-    // 🧴 Casa, Igiene e Detersivi
-    if(w.includes('ammorbidente') || w.includes('shampoo') || w.includes('bagnoschiuma') || w.includes('balsamo')) return '🧴';
-    if(w.includes('cotton') || w.includes('fioc')) return '🩹'; 
-    if(w.includes('carta') || w.includes('scottex') || w.includes('igienica') || w.includes('tovaglioli')) return '🧻';
-    if(w.includes('sapon') || w.includes('detersivo') || w.includes('sgrassatore') || w.includes('lavastoviglie')) return '🧼';
-    if(w.includes('spugn')) return '🧽';
-    if(w.includes('dentifricio') || w.includes('spazzolin')) return '🪥';
+    // 🧴 Casa, Igiene e Farmacia
+    if(w.match(/ammorbid|shampoo|bagnoschiuma|balsamo|crema|bagnodoccia|deodorante/)) return '🧴';
+    if(w.match(/cotton|fioc|cerott|disinfettant|medicinal|tachipirina|aspirina|moment/)) return '🩹'; 
+    if(w.match(/carta|scottex|igienic|tovagliol|fazzolett|rotol/)) return '🧻';
+    if(w.match(/sapon|detersiv|sgrassator|lavastovigli|candeggina|viakal|vetril|smacchiatore/)) return '🧼';
+    if(w.match(/spugn|stracci|panni/)) return '🧽';
+    if(w.match(/dentifrici|spazzolin|colluttorio/)) return '🪥';
 
-    // 🍞 Base (Latticini, Frutta, Verdura, Forno)
-    if(w.includes('latte')) return '🥛';
-    if(w.includes('pane') || w.includes('panino') || w.includes('baguette')) return '🍞';
-    if(w.includes('uov')) return '🥚';
-    if(w.includes('mel')) return '🍎';
-    if(w.includes('per')) return '🍐';
-    if(w.includes('banan')) return '🍌';
-    if(w.includes('limon')) return '🍋';
-    if(w.includes('frutta')) return '🍇';
-    if(w.includes('pomodor')) return '🍅';
-    if(w.includes('verdur') || w.includes('insalat') || w.includes('zucchine') || w.includes('carot')) return '🥬';
-    if(w.includes('patat')) return '🥔';
-    if(w.includes('cipoll') || w.includes('agli')) return '🧅';
-    if(w.includes('pasta') || w.includes('spaghett')) return '🍝';
-    if(w.includes('riso')) return '🍚';
-    if(w.includes('biscott') || w.includes('dolc')) return '🍪';
-    if(w.includes('cioccolat')) return '🍫';
-    if(w.includes('formaggi') || w.includes('grana') || w.includes('parmigiano') || w.includes('mozzarella')) return '🧀';
-    if(w.includes('burro')) return '🧈';
-    if(w.includes('gelat')) return '🍦';
-    if(w.includes('olio')) return '🫒';
-    if(w.includes('sale') || w.includes('zucchero')) return '🧂';
+    // 🍞 Base (Latticini, Frutta, Verdura, Forno, Dispensa)
+    if(w.match(/latte|panna/)) return '🥛';
+    if(w.match(/pane|panin|baguette|focaccia|piadina|crackers|grissin/)) return '🍞';
+    if(w.match(/uov/)) return '🥚';
+    if(w.match(/mel/)) return '🍎';
+    if(w.match(/per/)) return '🍐';
+    if(w.match(/banan/)) return '🍌';
+    if(w.match(/limon|aranc|mandarin|agrum|pompelm/)) return '🍋';
+    if(w.match(/frutt|uv|fragol|pesc|albicocc|cilieg|kiwi|melon|anguria/)) return '🍇';
+    if(w.match(/pomodor|pelati|passata/)) return '🍅';
+    if(w.match(/verdur|insalat|zucch|carot|broccol|spinac|minestron|finocchi|melanzan|peperon/)) return '🥬';
+    if(w.match(/patat/)) return '🥔';
+    if(w.match(/cipoll|agli/)) return '🧅';
+    if(w.match(/pasta|spaghett|maccheron|penn|tortellin|gnocch/)) return '🍝';
+    if(w.match(/riso|farro|orz|cous/)) return '🍚';
+    if(w.match(/biscott|dolc|merendin|torta|brioche|cornett|crostat/)) return '🍪';
+    if(w.match(/cioccolat|nutella|cacao|praline/)) return '🍫';
+    if(w.match(/formaggi|grana|parmigian|mozzarell|ricott|provol|sottilett|gorgonzol|scamorz/)) return '🧀';
+    if(w.match(/burro|margarin/)) return '🧈';
+    if(w.match(/gelat|ghiacciol|sorbett/)) return '🍦';
+    if(w.match(/olio|acet/)) return '🫒';
+    if(w.match(/sale|zuccher|pepe|spezi|origan|basilic/)) return '🧂';
+    if(w.match(/farin|lievit/)) return '🌾';
     
+    // Icona di default (segnaposto elegante)
     return '📌'; 
 }
 
-export function renderLista(lista, container, onToggle, onRemove) {
+// Rendering della lista HTML
+export function renderLista(lista, container, onToggle) {
+    // Svuota l'HTML precedente per evitare duplicati
     container.innerHTML = '';
 
     lista.forEach(item => {
+        // Crea il contenitore del singolo prodotto
         const li = document.createElement('li');
+        
+        // Se è completato, aggiunge la classe CSS per l'effetto sbarrato
         if (item.completato) li.classList.add('completed');
+
+        // L'intero blocco del prodotto diventa l'area cliccabile
+        li.style.cursor = 'pointer';
+        li.addEventListener('click', () => onToggle(item.id));
 
         const contentDiv = document.createElement('div');
         contentDiv.classList.add('item-content');
@@ -76,21 +87,12 @@ export function renderLista(lista, container, onToggle, onRemove) {
         textSpan.classList.add('item-text');
         textSpan.textContent = item.testo;
 
+        // Assembla l'elemento
         contentDiv.appendChild(iconSpan);
         contentDiv.appendChild(textSpan);
-
-        contentDiv.addEventListener('click', () => onToggle(item.id));
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('delete-btn');
-        deleteBtn.textContent = '✖';
-        deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evita che il click elimini E contemporaneamente sbarri
-            onRemove(item.id);
-        });
-
         li.appendChild(contentDiv);
-        li.appendChild(deleteBtn);
+        
+        // Inserisce l'elemento finito nel contenitore principale
         container.appendChild(li);
     });
 }

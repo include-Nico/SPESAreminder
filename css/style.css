@@ -1,4 +1,3 @@
-/* css/style.css */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 * {
@@ -63,29 +62,29 @@ input {
 }
 
 button {
-    padding: 15px 20px;
     border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-/* Lista */
+#add-btn {
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
 ul {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 12px;
     padding-bottom: 1.5rem;
-    /* Permette alla lista di scorrere se diventa troppo lunga senza rompere il layout */
     flex: 1; 
 }
 
 li {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 15px 18px;
     border-radius: 15px;
@@ -110,7 +109,6 @@ li {
     word-break: break-word;
 }
 
-/* Effetto sbarrato quando la mamma tocca l'oggetto preso */
 .completed .item-text {
     text-decoration: line-through;
     color: #777;
@@ -121,36 +119,35 @@ li {
     opacity: 0.4;
 }
 
-.delete-btn {
-    background: #ff4757;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-}
-
-/* Layout del gruppo di azioni in fondo */
+/* Nuova Layout Bottoni Inferiori */
 .actions-group {
     display: flex;
-    gap: 12px;
-    margin-top: auto; /* Spinge i bottoni in fondo alla pagina */
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: auto; 
     padding-top: 1rem;
 }
 
-.secondary-btn {
-    flex: 1.2;
-    background: rgba(37, 211, 102, 0.8); /* Verde WhatsApp */
-    color: white;
-    font-size: 0.95rem;
+/* Bottone WhatsApp Tondo */
+.whatsapp-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
+/* Bottone Elimina Lista Ovale */
 .danger-btn {
-    flex: 0.8;
-    background: rgba(231, 76, 60, 0.8); /* Rosso eliminazione */
-    color: white;
-    font-size: 0.95rem;
+    flex: 1;
+    padding: 16px 20px;
+    border-radius: 50px; /* Effetto pillola/opale */
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 @media (min-width: 480px) {
