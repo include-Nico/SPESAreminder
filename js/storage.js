@@ -2,17 +2,15 @@
 
 const STORAGE_KEY = 'spesa_mamma_data';
 
-// Recupera la lista dal LocalStorage
 export function ottieniSpesa() {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
 }
 
-// Salva un nuovo oggetto nella lista
 export function aggiungiItem(testo) {
     const lista = ottieniSpesa();
     const nuovoItem = {
-        id: Date.now().toString(), // Genera un ID univoco
+        id: Date.now().toString(),
         testo: testo,
         completato: false
     };
@@ -21,7 +19,6 @@ export function aggiungiItem(testo) {
     return lista;
 }
 
-// Rimuove un oggetto specifico
 export function rimuoviItem(id) {
     let lista = ottieniSpesa();
     lista = lista.filter(item => item.id !== id);
@@ -29,7 +26,6 @@ export function rimuoviItem(id) {
     return lista;
 }
 
-// Segna come comprato/da comprare
 export function toggleCompletato(id) {
     const lista = ottieniSpesa();
     const index = lista.findIndex(item => item.id === id);
@@ -37,5 +33,14 @@ export function toggleCompletato(id) {
         lista[index].completato = !lista[index].completato;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
     }
+    return lista;
+}
+
+// NUOVO: Rimuove in blocco solo le voci spuntate (comprate)
+export function pulisciCompletati() {
+    let lista = ottieniSpesa();
+    // Tiene solo gli elementi NON completati
+    lista = lista.filter(item => !item.completato);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
     return lista;
 }

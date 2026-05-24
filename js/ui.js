@@ -1,8 +1,7 @@
 // js/ui.js
 
-// Dizionario potenziato delle icone
-function getIconForWord(word) {
-    // Convertiamo in minuscolo per facilitare la ricerca
+// Esportiamo la funzione così da usarla anche per il messaggio WhatsApp
+export function getIconForWord(word) {
     const w = word.toLowerCase();
 
     // 🥩 Carni e Salumi
@@ -27,7 +26,7 @@ function getIconForWord(word) {
 
     // 🧴 Casa, Igiene e Detersivi
     if(w.includes('ammorbidente') || w.includes('shampoo') || w.includes('bagnoschiuma') || w.includes('balsamo')) return '🧴';
-    if(w.includes('cotton') || w.includes('fioc')) return '🩹'; // Icona per cure mediche/igiene personale
+    if(w.includes('cotton') || w.includes('fioc')) return '🩹'; 
     if(w.includes('carta') || w.includes('scottex') || w.includes('igienica') || w.includes('tovaglioli')) return '🧻';
     if(w.includes('sapon') || w.includes('detersivo') || w.includes('sgrassatore') || w.includes('lavastoviglie')) return '🧼';
     if(w.includes('spugn')) return '🧽';
@@ -56,7 +55,6 @@ function getIconForWord(word) {
     if(w.includes('olio')) return '🫒';
     if(w.includes('sale') || w.includes('zucchero')) return '🧂';
     
-    // Icona di default se non trova corrispondenze
     return '📌'; 
 }
 
@@ -86,7 +84,10 @@ export function renderLista(lista, container, onToggle, onRemove) {
         const deleteBtn = document.createElement('button');
         deleteBtn.classList.add('delete-btn');
         deleteBtn.textContent = '✖';
-        deleteBtn.addEventListener('click', () => onRemove(item.id));
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita che il click elimini E contemporaneamente sbarri
+            onRemove(item.id);
+        });
 
         li.appendChild(contentDiv);
         li.appendChild(deleteBtn);

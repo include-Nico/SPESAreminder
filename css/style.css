@@ -6,7 +6,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
-    /* Evita l'highlight blu fastidioso al tocco su schermi touch */
     -webkit-tap-highlight-color: transparent; 
 }
 
@@ -21,7 +20,7 @@ body {
 
 .app-container {
     width: 100%;
-    max-width: 450px; /* Misura tipica di uno schermo mobile */
+    max-width: 450px;
     min-height: 100vh;
     padding: 2rem 1.5rem;
     display: flex;
@@ -47,7 +46,6 @@ h1 {
     margin-top: 0.5rem;
 }
 
-/* Gruppo Input */
 .input-group {
     display: flex;
     gap: 10px;
@@ -80,7 +78,9 @@ ul {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    /* Permette alla lista di scorrere se diventa troppo lunga senza rompere il layout */
+    flex: 1; 
 }
 
 li {
@@ -98,7 +98,7 @@ li {
     gap: 15px;
     font-size: 1.15rem;
     cursor: pointer;
-    flex: 1; /* Occupa tutto lo spazio a sinistra del cestino */
+    flex: 1;
 }
 
 .item-icon {
@@ -110,13 +110,15 @@ li {
     word-break: break-word;
 }
 
+/* Effetto sbarrato quando la mamma tocca l'oggetto preso */
 .completed .item-text {
     text-decoration: line-through;
-    color: #888;
+    color: #777;
+    opacity: 0.6;
 }
 
 .completed .item-icon {
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 .delete-btn {
@@ -127,18 +129,36 @@ li {
     font-size: 1rem;
     cursor: pointer;
     border: none;
-    /* Su mobile il pulsante elimina è sempre visibile */
-    opacity: 1; 
-    visibility: visible;
 }
 
-/* Modifiche per visualizzazione su Desktop (schermi grandi) */
+/* Layout del gruppo di azioni in fondo */
+.actions-group {
+    display: flex;
+    gap: 12px;
+    margin-top: auto; /* Spinge i bottoni in fondo alla pagina */
+    padding-top: 1rem;
+}
+
+.secondary-btn {
+    flex: 1.2;
+    background: rgba(37, 211, 102, 0.8); /* Verde WhatsApp */
+    color: white;
+    font-size: 0.95rem;
+}
+
+.danger-btn {
+    flex: 0.8;
+    background: rgba(231, 76, 60, 0.8); /* Rosso eliminazione */
+    color: white;
+    font-size: 0.95rem;
+}
+
 @media (min-width: 480px) {
     body {
         padding: 2rem;
     }
     .app-container {
-        min-height: auto;
+        min-height: 85vh;
         border-radius: 30px;
         box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     }
