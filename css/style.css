@@ -1,3 +1,4 @@
+/* css/style.css */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 * {
@@ -5,12 +6,14 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
+    /* Rimuove l'alone blu al tocco sui telefoni */
     -webkit-tap-highlight-color: transparent; 
 }
 
 body {
     min-height: 100vh;
-    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    /* NUOVO SFONDO SCURO ED ELEGANTE */
+    background: linear-gradient(135deg, #373b44 0%, #4286f4 100%);
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -21,52 +24,57 @@ body {
     width: 100%;
     max-width: 450px;
     min-height: 100vh;
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
 }
 
 header {
     text-align: center;
-    margin-bottom: 2rem;
-    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
 }
 
 h1 {
     font-size: 2.5rem;
-    color: #2c3e50;
+    color: #1a202c;
     font-weight: 600;
     letter-spacing: -1px;
 }
 
 .subtitle {
-    color: #444;
+    color: #333;
     font-size: 0.95rem;
-    margin-top: 0.5rem;
+    margin-top: 0.2rem;
+    font-weight: 400;
 }
 
+/* NUOVO LAYOUT GRID PER TELEFONO */
 .input-group {
-    display: flex;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    gap: 12px;
     margin-bottom: 1.5rem;
-    align-items: center;
 }
 
-/* Stile del bottone Microfono */
+/* MICROFONO: BLINDATO E SEMPRE TONDO */
 .mic-btn {
-    width: 48px;
-    height: 48px;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    flex-shrink: 0; /* Impedisce che venga schiacciato */
 }
 
-/* Animazione per quando il telefono sta ascoltando */
+/* Animazione pulsante microfono attivo */
 .mic-btn.listening {
     background: #ff4757 !important;
     color: white !important;
@@ -80,30 +88,36 @@ h1 {
 }
 
 input {
-    flex: 1;
-    padding: 14px 15px;
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    width: 100%;
+    padding: 0 15px;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 1rem;
     outline: none;
     transition: all 0.3s ease;
 }
 
 #add-btn {
-    padding: 14px 18px;
-    border-radius: 12px;
-    font-size: 1rem;
+    grid-column: 1 / 3; /* Occupa tutta la riga sotto */
+    grid-row: 2 / 3;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 1.05rem;
     font-weight: 600;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
+/* Lista degli acquisti */
 ul {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     padding-bottom: 1.5rem;
     flex: 1; 
 }
@@ -111,8 +125,8 @@ ul {
 li {
     display: flex;
     align-items: center;
-    padding: 15px 18px;
-    border-radius: 15px;
+    padding: 14px 16px;
+    border-radius: 16px;
     transition: all 0.3s ease;
     cursor: pointer;
 }
@@ -129,9 +143,8 @@ li {
     font-size: 1.6rem;
 }
 
-/* Badge della quantità */
 .item-qty {
-    background: #2c3e50;
+    background: #1a202c;
     color: white;
     font-size: 0.85rem;
     font-weight: 600;
@@ -144,35 +157,32 @@ li {
 .item-text {
     transition: all 0.3s ease;
     word-break: break-word;
+    line-height: 1.2;
 }
 
 .completed .item-text {
     text-decoration: line-through;
-    color: #777;
+    color: #444;
     opacity: 0.6;
 }
 
-.completed .item-icon {
+.completed .item-icon, .completed .item-qty {
     opacity: 0.4;
 }
 
-.completed .item-qty {
-    background: #888;
-    opacity: 0.6;
-}
-
+/* Bottoni inferiori */
 .actions-group {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
     margin-top: auto; 
     padding-top: 1rem;
 }
 
 .whatsapp-btn {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -185,7 +195,7 @@ li {
 
 .danger-btn {
     flex: 1;
-    padding: 16px 20px;
+    padding: 16px;
     border-radius: 50px;
     font-size: 1.05rem;
     font-weight: 600;
@@ -193,13 +203,21 @@ li {
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
+/* COMPORTAMENTO SU PC/TABLET */
 @media (min-width: 480px) {
     body { padding: 2rem; }
     .app-container {
         min-height: 85vh;
         border-radius: 30px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
     }
+    
+    /* Su PC c'è spazio, quindi tornano in linea tutti e 3 */
+    .input-group { display: flex; }
+    .mic-btn { grid-column: auto; grid-row: auto; }
+    input { grid-column: auto; grid-row: auto; flex: 1; }
+    #add-btn { grid-column: auto; grid-row: auto; width: auto; padding: 0 20px; }
 }
