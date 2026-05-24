@@ -1,0 +1,17 @@
+{
+  "name": "SP€SA!",
+  "short_name": "SP€SA!",
+  "description": "La lista della spesa intelligente per la mamma",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#373b44",
+  "theme_color": "#373b44",
+  "icons": [
+    {
+      "src": "icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
