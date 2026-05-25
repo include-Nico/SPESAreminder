@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <title>Storico SP€SA!</title>
     <meta name="theme-color" content="#373b44">
     <link rel="apple-touch-icon" href="icons/icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/glass.css">
@@ -15,6 +17,7 @@
 </head>
 <body>
     <div class="app-container">
+        
         <header class="app-header">
             <button id="back-btn" class="icon-btn" aria-label="Torna indietro">⬅️</button>
             <div>
@@ -41,10 +44,18 @@
                 <h3>Andamento Spese</h3>
                 <select id="chart-period" class="glass-select">
                     <option value="mensile">Ultimi 6 Mesi</option>
-                    <option value="annuale">Annuale</option>
                 </select>
             </div>
             <canvas id="expenseChart"></canvas>
+        </div>
+
+        <div class="filters-container glass-panel" style="display: flex; gap: 10px; margin-bottom: 20px; padding: 12px; border-radius: 15px;">
+            <input type="text" id="filter-text" placeholder="Cerca supermercato..." class="glass-select" style="flex: 1; padding: 8px;">
+            <select id="sort-order" class="glass-select" style="padding: 8px;">
+                <option value="recenti">Recenti</option>
+                <option value="prezzo-alto">Prezzo Alto</option>
+                <option value="prezzo-basso">Prezzo Basso</option>
+            </select>
         </div>
 
         <h3 class="section-title">Ultime Spese Registrate</h3>
@@ -53,6 +64,26 @@
         </ul>
     </div>
 
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel" style="max-height: 90vh; overflow-y: auto;">
+            <h3 id="detail-title">Dettaglio Spesa</h3>
+            <div id="detail-content" style="text-align: left; margin: 15px 0; font-size: 0.95rem; color: #333;"></div>
+            <div class="modal-actions">
+                <button id="detail-close" class="modal-btn secondary-btn">Chiudi</button>
+                <button id="detail-delete" class="modal-btn danger-btn">Elimina Spesa</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+    </script>
     <script type="module" src="js/storico.js"></script>
 </body>
 </html>
