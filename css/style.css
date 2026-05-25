@@ -113,7 +113,6 @@ ul {
     gap: 10px;
     padding-bottom: 1.5rem;
     flex: 1; 
-    user-select: none; /* Evita che il testo si selezioni tenendo premuto */
 }
 
 li {
@@ -123,9 +122,13 @@ li {
     border-radius: 16px;
     transition: all 0.2s ease;
     cursor: pointer;
+    
+    /* Blocca il fastidioso menu nativo del telefono durante la pressione prolungata */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
-/* Animazione per quando la mamma tiene premuto l'oggetto */
 li.pressing {
     transform: scale(0.95);
     opacity: 0.7;
@@ -215,18 +218,20 @@ li.pressing {
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    
+    /* Il modale scompare morbidamente usando queste due regole */
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
     padding: 20px;
 }
 
-/* Classi per animare l'ingresso/uscita del modale */
 .modal-overlay.visible {
     opacity: 1;
     visibility: visible;
 }
 
+/* Questa classe verrà aggiunta e tolta dal JS solo sui bottoni! */
 .hidden {
     display: none !important;
 }
