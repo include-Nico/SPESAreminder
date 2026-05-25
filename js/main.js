@@ -1,5 +1,5 @@
 // js/main.js
-import { ottieniSpesa, aggiungiItem, toggleCompletato, svuotaLista } from './storage.js';
+import { ottieniSpesa, aggiungiItem, toggleCompletato, svuotaLista, rimuoviItem } from './storage.js';
 import { renderLista, getIconForWord } from './ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,14 +10,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearBtn = document.getElementById('clear-completed-btn');
     const micBtn = document.getElementById('mic-btn');
 
+    // --- GESTIONE MODALE PERSONALIZZATO ---
+    const modalOverlay = document.getElementById('custom-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    
+    // Funzione intelligente per gestire tutti gli avvisi
+    function mostraModale(titolo, messaggio, onConfirm, isAlert = false) {
+        modalTitle.textContent = titolo;
+        modalMessage.textContent = messaggio;
+
+        // Troviamo i bottoni originali
+        const oldCancelBtn = document.getElementById('modal-cancel');
+        const oldConfirmBtn = document.getElementById('modal-confirm');
+
+        // TRUCCO PRO: Cloniamo i bottoni per resettare vecchi "click" rimasti in memoria
+        const cancelBtn = oldCancelBtn.cloneNode(true);
+        const confirmBtn = oldConfirmBtn.cloneNode(true);
+        oldCancelBtn.parentNode.replaceChild(cancelBtn, oldCancelBtn);
+        oldConfirmBtn.parentNode.replaceChild(confirmBtn, oldConfirmBtn);
+
+        // Se è solo un avviso (es. lista vuota), nascondi "Annulla" e cambia testo a "OK"
+        if (isAlert) {
+            cancelBtn.classList.add('hidden');
+            confirmBtn.textContent = 'OK';
+            confirmBtn.classList.remove('danger-btn');
+            confirmBtn.classList.add('secondary-btn'); // Fallo sembrare innocuo
+        } else {
+            cancelBtn.classList.remove('hidden');
+            confirmBtn.textContent = 'Elimina';
+            confirmBtn.classList.add('danger-btn');
+            confirmBtn.classList.remove('secondary-btn');
+        }
+
+        // Mostra il modale con animazione
+        modalOverlay.classList.add('visible');
+
+        // Azione Annulla
+        cancelBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('visible');
+        });
+
+        // Azione Conferma
+        confirmBtn.addEventListener('click', () => {
+            if (onConfirm) onConfirm();
+            modalOverlay.classList.remove('visible');
+        });
+    }
+    // --- FINE MODALE ---
+
     const aggiornaSchermo = () => {
         const listaAttuale = ottieniSpesa();
-        renderLista(listaAttuale, listContainer, handleToggle);
+        // Passiamo anche la nuova funzione handleLongPress al render
+        renderLista(listaAttuale, listContainer, handleToggle, handleLongPress);
     };
 
     const handleToggle = (id) => {
         toggleCompletato(id);
         aggiornaSchermo();
+    };
+
+    // Callback per la pressione prolungata (singolo prodotto)
+    const handleLongPress = (item) => {
+        // Usiamo il nostro bellissimo Modale Personalizzato!
+        mostraModale(
+            "Rimuovi Prodotto", 
+            `Vuoi davvero eliminare "${item.testo}" dalla lista?`, 
+            () => {
+                rimuoviItem(item.id);
+                aggiornaSchermo();
+            }
+        );
     };
 
     const gestisciAggiunta = () => {
@@ -26,68 +89,56 @@ document.addEventListener('DOMContentLoaded', () => {
             aggiungiItem(testo);
             inputField.value = ''; 
             aggiornaSchermo();
-            // Evitiamo di forzare il focus su mobile per non far aprire sempre la tastiera
             if (window.innerWidth > 768) inputField.focus(); 
         }
     };
 
-    // SETUP MICROFONO (Web Speech API)
-    // Controlla se il browser supporta il riconoscimento vocale
+    // MICROFONO (Web Speech API)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.lang = 'it-IT'; // Imposta lingua italiana
-        recognition.interimResults = false; // Aspetta che finisca di parlare
+        recognition.lang = 'it-IT';
+        recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
-        // Quando tocca il microfono, inizia ad ascoltare
-        micBtn.addEventListener('click', () => {
-            recognition.start();
-        });
+        micBtn.addEventListener('click', () => recognition.start());
 
-        // Quando inizia ad ascoltare, fa pulsare il bottone di rosso
         recognition.addEventListener('audiostart', () => {
             micBtn.classList.add('listening');
             inputField.placeholder = "Ti ascolto...";
         });
 
-        // Quando ha capito la parola, la inserisce e la aggiunge in automatico!
         recognition.addEventListener('result', (e) => {
-            const transcript = e.results[0][0].transcript;
-            inputField.value = transcript;
-            gestisciAggiunta(); // Aggiunge direttamente alla lista senza fargli premere "Aggiungi"
+            inputField.value = e.results[0][0].transcript;
+            gestisciAggiunta(); 
         });
 
-        // Quando finisce (o va in timeout), ferma l'animazione
         recognition.addEventListener('audioend', () => {
             micBtn.classList.remove('listening');
             inputField.placeholder = "Es. 3 Latte, 2kg Mele...";
         });
 
-        // Gestione errori (es. permessi negati)
         recognition.addEventListener('error', (e) => {
             micBtn.classList.remove('listening');
-            inputField.placeholder = "Es. 3 Latte, 2kg Mele...";
+            inputField.placeholder = "Es. 3 Latte...";
             if (e.error === 'not-allowed') {
-                alert('Attenzione: devi consentire l\'uso del microfono nelle impostazioni del browser.');
+                mostraModale("Microfono bloccato", "Devi consentire l'uso del microfono nelle impostazioni.", null, true);
             }
         });
     } else {
-        // Se usa un browser troppo vecchio, nasconde il bottone del microfono
         micBtn.style.display = 'none';
     }
 
-    // CONDIVISIONE WHATSAPP
+    // WHATSAPP
     const gestisciCondivisioneWhatsApp = () => {
         const lista = ottieniSpesa();
         if (lista.length === 0) {
-            alert("La lista è vuota! Aggiungi qualcosa prima di inviare.");
+            // Sostituito il vecchio "alert" con il nostro modale in modalità "Solo Avviso"
+            mostraModale("Lista Vuota", "Non c'è nulla da inviare. Aggiungi qualcosa prima!", null, true);
             return;
         }
 
         let messaggio = "*SP€SA! 🛒*\n_Ecco la lista aggiornata:_\n\n";
-        
         lista.forEach(item => {
             const icona = getIconForWord(item.testo);
             const stato = item.completato ? "✅ " : "⬜ "; 
@@ -98,24 +149,31 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(urlWhatsApp, '_blank');
     };
 
-    // EVENT LISTENERS TRADIZIONALI
+    // EVENT LISTENERS
     addBtn.addEventListener('click', gestisciAggiunta);
-    
     inputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') gestisciAggiunta();
     });
 
     whatsappBtn.addEventListener('click', gestisciCondivisioneWhatsApp);
     
+    // CANCELLA LISTA
     clearBtn.addEventListener('click', () => {
         const lista = ottieniSpesa();
-        if (lista.length === 0) return; 
-
-        const conferma = confirm("Sei sicura di voler cancellare l'intera lista?");
-        if (conferma) {
-            svuotaLista();
-            aggiornaSchermo();
+        if (lista.length === 0) {
+            mostraModale("Lista Vuota", "La lista è già vuota!", null, true);
+            return; 
         }
+
+        // Sostituito il vecchio "confirm" con il modale elegante
+        mostraModale(
+            "Svuota Carrello", 
+            "Sei sicura di voler cancellare l'intera lista della spesa?", 
+            () => {
+                svuotaLista();
+                aggiornaSchermo();
+            }
+        );
     });
 
     // Avvio dell'app

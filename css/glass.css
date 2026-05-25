@@ -83,3 +83,27 @@ li:hover {
     background: rgba(231, 76, 60, 1);
     transform: translateY(-3px);
 }
+
+/* --- Modale Personalizzato --- */
+.modal-content {
+    background: rgba(255, 255, 255, 0.85); /* Leggermente più bianco per maggiore leggibilità */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.modal-btn {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.modal-btn:hover, .modal-btn:active {
+    transform: translateY(-2px);
+}
+
+/* Modifica il rosso del tasto pericolo dentro al modale */
+.modal-content .danger-btn {
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
+}
+.modal-content .danger-btn:hover {
+    background: rgba(231, 76, 60, 1);
+}

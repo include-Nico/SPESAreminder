@@ -1,16 +1,12 @@
 // js/ui.js
 
-// Funzione intelligente per separare quantità e nome prodotto
 export function estraiQuantita(testo) {
-    // Cerca numeri (anche con virgola) seguiti opzionalmente da unità di misura
-    // Es: "3", "1.5 kg", "500g", "2 pacchi di"
     const regex = /^(\d+(?:[.,]\d+)?\s*(?:kg|g|l|ml|pz|litri|chili|etti|pacchi|bottiglie)?)\s+(?:di\s+)?(.*)/i;
     const match = testo.trim().match(regex);
-    
     if (match) {
         return {
             quantita: match[1],
-            nomeProdotto: match[2].charAt(0).toUpperCase() + match[2].slice(1) // Mette la maiuscola al prodotto
+            nomeProdotto: match[2].charAt(0).toUpperCase() + match[2].slice(1)
         };
     }
     return {
@@ -19,10 +15,8 @@ export function estraiQuantita(testo) {
     };
 }
 
-// Dizionario espanso (invariato)
 export function getIconForWord(word) {
     const w = word.toLowerCase();
-
     if(w.match(/pollo|tacchino|faraona|cappone/)) return '🍗';
     if(w.match(/salum|prosciutt|salam|mortadella|pancetta|speck|bresaola|coppa|guanciale/)) return '🥓';
     if(w.match(/carne|trita|manzo|hamburger|bistecca|vitello|tagliata|costata|filetto|fettine/)) return '🥩';
@@ -65,34 +59,75 @@ export function getIconForWord(word) {
     if(w.match(/olio|acet/)) return '🫒';
     if(w.match(/sale|zuccher|pepe|spezi|origan|basilic/)) return '🧂';
     if(w.match(/farin|lievit/)) return '🌾';
-    
     return '📌'; 
 }
 
-// Rendering della lista HTML con il Badge per i numeri
-export function renderLista(lista, container, onToggle) {
+// AGGIUNTO: Riceve onLongPress per l'eliminazione
+export function renderLista(lista, container, onToggle, onLongPress) {
     container.innerHTML = '';
 
     lista.forEach(item => {
         const li = document.createElement('li');
         if (item.completato) li.classList.add('completed');
 
-        li.style.cursor = 'pointer';
-        li.addEventListener('click', () => onToggle(item.id));
+        // --- GESTIONE PRESSIONE PROLUNGATA (LONG PRESS) ---
+        let pressTimer;
+        let isLongPress = false;
+
+        const startPress = (e) => {
+            // Ignora se è un click col tasto destro del mouse
+            if (e.type === 'mousedown' && e.button !== 0) return; 
+            
+            isLongPress = false;
+            li.classList.add('pressing'); // Attiva l'animazione di rimpicciolimento
+
+            // Se il dito sta premuto per 600 millisecondi, scatta l'eliminazione
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                li.classList.remove('pressing');
+                
+                // Feedback tattile: fa vibrare leggermente il telefono se supportato
+                if (navigator.vibrate) navigator.vibrate(50); 
+                
+                onLongPress(item); // Chiama la funzione di avviso eliminazione
+            }, 600);
+        };
+
+        const cancelPress = () => {
+            clearTimeout(pressTimer);
+            li.classList.remove('pressing');
+        };
+
+        // Eventi universali (Mobile e Computer)
+        li.addEventListener('mousedown', startPress);
+        li.addEventListener('touchstart', startPress, { passive: true });
+        
+        li.addEventListener('mouseup', cancelPress);
+        li.addEventListener('mouseleave', cancelPress);
+        li.addEventListener('touchend', cancelPress);
+        li.addEventListener('touchcancel', cancelPress);
+
+        // Click normale (sbarra la riga)
+        li.addEventListener('click', (e) => {
+            // Se si è appena attivato il long press, blocchiamo il click normale!
+            if (isLongPress) {
+                e.preventDefault();
+                return;
+            }
+            onToggle(item.id);
+        });
+        // --- FINE GESTIONE LONG PRESS ---
 
         const contentDiv = document.createElement('div');
         contentDiv.classList.add('item-content');
         
-        // Estrapola quantità e nome dal testo originale
         const info = estraiQuantita(item.testo);
 
         const iconSpan = document.createElement('span');
         iconSpan.classList.add('item-icon');
-        // Cerca l'icona usando il nome pulito (senza il numero)
         iconSpan.textContent = getIconForWord(info.nomeProdotto);
         contentDiv.appendChild(iconSpan);
 
-        // Se ha trovato un numero, crea il badge
         if (info.quantita) {
             const qtySpan = document.createElement('span');
             qtySpan.classList.add('item-qty');
