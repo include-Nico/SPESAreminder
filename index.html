@@ -16,6 +16,7 @@
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/glass.css">
+    <!-- Importiamo Tesseract.js per leggere gli scontrini -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
@@ -25,6 +26,7 @@
                 <h1>SP€SA! 🛒</h1>
                 <p class="subtitle">La lista intelligente</p>
             </div>
+            <!-- Tasto per andare alla pagina dello Storico e Analisi -->
             <button id="go-to-history-btn" class="icon-btn" aria-label="Storico Spese">📊</button>
         </header>
         
@@ -39,10 +41,12 @@
         </div>
 
         <div id="quick-suggestions" class="suggestions-container">
-            </div>
+            <!-- I bottoni verranno generati dal JavaScript -->
+        </div>
 
         <ul id="shopping-list"></ul>
 
+        <!-- Disposizione dei bottoni inferiori -->
         <div class="actions-container">
             <div class="actions-group">
                 <button id="share-whatsapp-btn" class="whatsapp-btn" aria-label="Invia su WhatsApp">
@@ -52,10 +56,12 @@
                 </button>
                 <button id="clear-completed-btn" class="danger-btn">Cancella lista</button>
             </div>
+            <!-- Bottone Fine Spesa -->
             <button id="checkout-btn" class="primary-btn mt-2">🏁 Fine Spesa</button>
         </div>
     </div>
 
+    <!-- Modale Avvisi Standard -->
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
             <h3 id="modal-title">Attenzione</h3>
@@ -67,6 +73,7 @@
         </div>
     </div>
 
+    <!-- Modale di Registrazione Spesa (Checkout) -->
     <div id="checkout-modal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
             <h3>Registra Spesa 📊</h3>
@@ -81,6 +88,7 @@
 
             <div class="file-upload-box">
                 <label for="receipt-upload" class="upload-btn">📸 Fotografa Scontrino</label>
+                <!-- capture="environment" apre direttamente la fotocamera posteriore su mobile -->
                 <input type="file" id="receipt-upload" accept="image/*" capture="environment" hidden>
                 <p id="receipt-status">Nessuna foto / OCR in attesa</p>
             </div>
@@ -92,20 +100,12 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
     <div id="undo-toast" class="toast hidden">
         <span id="toast-message">Prodotto eliminato</span>
         <button id="toast-undo-btn">ANNULLA</button>
     </div>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('✅ Service Worker registrato'))
-                    .catch(err => console.error('❌ Errore Service Worker', err));
-            });
-        }
-    </script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
