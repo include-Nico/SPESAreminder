@@ -2,11 +2,9 @@
 import { ottieniSpesa, aggiungiItem, toggleCompletato, svuotaLista, rimuoviItem } from './storage.js';
 import { renderLista, getIconForWord, renderSuggerimenti } from './ui.js';
 
-// --- CONFIGURAZIONE DATABASE GOOGLE ---
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyt_Zyj6RoF_ZhBH7jDy4kN9VT25UMkZVF1T8rPI2LtpM6yMei1ZSJXMhyV4R1Ai_0E/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiCBpVCsyXBiTh-B-4tdfQmDPWVFg2J5f860gL5ogiXGHyURpnoKPuHVMB-SGmYxbE/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Referenze Elementi DOM Base
     const inputField = document.getElementById('item-input');
     const addBtn = document.getElementById('add-btn');
     const listContainer = document.getElementById('shopping-list');
@@ -15,23 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const micBtn = document.getElementById('mic-btn');
     const suggestionsContainer = document.getElementById('quick-suggestions');
 
-    // Referenze Checkout e Scontrino
     const checkoutBtn = document.getElementById('checkout-btn');
     const checkoutModal = document.getElementById('checkout-modal');
     const checkoutCancel = document.getElementById('checkout-cancel');
     const checkoutConfirm = document.getElementById('checkout-confirm');
     const receiptTotal = document.getElementById('receipt-total');
     const supermarketSelect = document.getElementById('supermarket-select');
-    const getLocationBtn = document.getElementById('get-location-btn');
-    const locationText = document.getElementById('location-text');
-    const receiptUpload = document.getElementById('receipt-upload');
-    const receiptStatus = document.getElementById('receipt-status');
 
-    // Variabili per salvare i dati del checkout temporaneamente
-    let currentPos = "Posizione ignota";
-    let currentReceiptText = "Nessuna foto";
-
-    // Referenze Toast e Modale
     const toastElement = document.getElementById('undo-toast');
     const toastUndoBtn = document.getElementById('toast-undo-btn');
     let toastTimer; 
@@ -41,22 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('modal-title');
     const modalMessage = document.getElementById('modal-message');
     
-    // Bottone Storico
     const goToHistoryBtn = document.getElementById('go-to-history-btn');
-    if (goToHistoryBtn) {
-        goToHistoryBtn.addEventListener('click', () => {
-            window.location.href = 'storico.html';
-        });
-    }
+    if (goToHistoryBtn) goToHistoryBtn.addEventListener('click', () => window.location.href = 'storico.html');
 
-    // --- GESTIONE MODALE E TOAST ---
     function mostraModale(titolo, messaggio, onConfirm, isAlert = false) {
         modalTitle.textContent = titolo;
         modalMessage.textContent = messaggio;
 
         const oldCancelBtn = document.getElementById('modal-cancel');
         const oldConfirmBtn = document.getElementById('modal-confirm');
-
         const cancelBtn = oldCancelBtn.cloneNode(true);
         const confirmBtn = oldConfirmBtn.cloneNode(true);
         oldCancelBtn.parentNode.replaceChild(cancelBtn, oldCancelBtn);
@@ -113,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- FUNZIONI PRINCIPALI DELL'APP ---
     const aggiornaSchermo = () => {
         const listaAttuale = ottieniSpesa();
         renderLista(listaAttuale, listContainer, handleToggle, handleLongPress);
@@ -142,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderSuggerimenti(suggestionsContainer, gestisciAggiunta);
 
-    // --- MICROFONO ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
@@ -151,49 +130,22 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.maxAlternatives = 1;
 
         micBtn.addEventListener('click', () => recognition.start());
-
-        recognition.addEventListener('audiostart', () => {
-            micBtn.classList.add('listening');
-            inputField.placeholder = "Ti ascolto...";
-        });
-
-        recognition.addEventListener('result', (e) => {
-            inputField.value = e.results[0][0].transcript;
-            gestisciAggiunta(); 
-        });
-
-        recognition.addEventListener('audioend', () => {
-            micBtn.classList.remove('listening');
-            inputField.placeholder = "Es. 3 Latte, 2kg Mele...";
-        });
-
-        recognition.addEventListener('error', (e) => {
-            micBtn.classList.remove('listening');
-            inputField.placeholder = "Es. 3 Latte...";
-            if (e.error === 'not-allowed') {
-                mostraModale("Microfono bloccato", "Devi consentire l'uso del microfono nelle impostazioni.", null, true);
-            }
-        });
+        recognition.addEventListener('audiostart', () => { micBtn.classList.add('listening'); inputField.placeholder = "Ti ascolto..."; });
+        recognition.addEventListener('result', (e) => { inputField.value = e.results[0][0].transcript; gestisciAggiunta(); });
+        recognition.addEventListener('audioend', () => { micBtn.classList.remove('listening'); inputField.placeholder = "Es. 3 Latte, 2kg Mele..."; });
+        recognition.addEventListener('error', (e) => { micBtn.classList.remove('listening'); inputField.placeholder = "Es. 3 Latte..."; if (e.error === 'not-allowed') mostraModale("Microfono bloccato", "Devi consentire l'uso del microfono.", null, true); });
     } else {
         micBtn.style.display = 'none';
     }
 
-    // --- GESTIONE FINE SPESA E CHECKOUT ---
     checkoutBtn.addEventListener('click', () => {
         const lista = ottieniSpesa();
         if (lista.length === 0) {
             mostraModale("Lista Vuota", "Aggiungi almeno un prodotto prima di fare checkout!", null, true);
             return;
         }
-        
-        // Reset campi
         receiptTotal.value = '';
         supermarketSelect.value = 'Ignoto';
-        locationText.textContent = 'Posizione ignota';
-        receiptStatus.textContent = 'Nessuna foto / OCR in attesa';
-        currentPos = "Posizione ignota";
-        currentReceiptText = "Nessuna foto";
-
         checkoutModal.classList.remove('hidden');
         setTimeout(() => checkoutModal.classList.add('visible'), 10);
     });
@@ -203,56 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => checkoutModal.classList.add('hidden'), 300);
     });
 
-    // 1. Geolocalizzazione GPS
-    getLocationBtn.addEventListener('click', () => {
-        locationText.textContent = "Rilevamento in corso... ⏳";
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude.toFixed(5);
-                    const lon = position.coords.longitude.toFixed(5);
-                    currentPos = `GPS: ${lat} ${lon}`;
-                    locationText.textContent = `📍 Rilevato: ${lat}, ${lon}`;
-                },
-                (error) => {
-                    locationText.textContent = "❌ Errore GPS. Permesso negato?";
-                    currentPos = "Errore GPS";
-                }
-            );
-        } else {
-            locationText.textContent = "GPS non supportato dal browser.";
-        }
-    });
-
-    // 2. OCR Scontrino (Tesseract.js) + AUTO SELECT INTELIGENTE
-    receiptUpload.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        receiptStatus.textContent = "Analisi immagine in corso... ⏳ (Potrebbe volerci un minuto)";
-        
-        try {
-            const { data: { text } } = await Tesseract.recognize(file, 'ita');
-            currentReceiptText = text.replace(/\n/g, ' ').substring(0, 200) + '...';
-            
-            // --- LOGICA AUTO-RILEVAMENTO DIZIONARIO SUPERMERCATI ---
-            const textLower = text.toLowerCase();
-            if (textLower.includes('conad')) supermarketSelect.value = 'Conad';
-            else if (textLower.includes('coop')) supermarketSelect.value = 'Coop';
-            else if (textLower.includes('esselunga')) supermarketSelect.value = 'Esselunga';
-            else if (textLower.includes('eurospin')) supermarketSelect.value = 'Eurospin';
-            else if (textLower.includes('lidl')) supermarketSelect.value = 'Lidl';
-            else if (textLower.includes('carrefour')) supermarketSelect.value = 'Carrefour';
-            
-            receiptStatus.textContent = "✅ Scontrino letto con successo!";
-        } catch (err) {
-            receiptStatus.textContent = "❌ Errore nella lettura dello scontrino.";
-            currentReceiptText = "Errore Lettura";
-            console.error(err);
-        }
-    });
-
-    // 3. Salva nel Database (Google Fogli)
     checkoutConfirm.addEventListener('click', () => {
         const totale = parseFloat(receiptTotal.value);
         if (isNaN(totale) || totale <= 0) {
@@ -263,17 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutConfirm.textContent = "Salvataggio... ⏳";
         checkoutConfirm.disabled = true;
 
-        // Componiamo la stringa unendo Marchio e GPS separati da virgola per lo storico
-        let infoSupermercato = supermarketSelect.value;
-        if (currentPos !== "Posizione ignota" && currentPos !== "Errore GPS") {
-            infoSupermercato += `, ${currentPos}`;
-        }
+        // Estrae i nomi degli articoli attualmente in lista
+        const lista = ottieniSpesa();
+        const listaArticoli = lista.map(item => item.testo).join(', ');
 
         const payload = {
             data: new Date().toLocaleString("it-IT"),
-            supermercato: infoSupermercato,
+            supermercato: supermarketSelect.value,
             totale: totale,
-            scontrino: currentReceiptText
+            articoli: listaArticoli // Salviamo la lista nel foglio Google!
         };
 
         fetch(GOOGLE_SCRIPT_URL, {
@@ -298,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             svuotaLista();
             aggiornaSchermo();
             mostraModale("Checkout Inviato", "Spesa inviata. Controlla lo Storico per verificare.", null, true);
-            console.error("Fetch warning:", err);
+            console.error(err);
         })
         .finally(() => {
             checkoutConfirm.textContent = "Salva nel Cloud";
@@ -306,52 +206,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- WHATSAPP E AZIONI STANDARD ---
     const gestisciCondivisioneWhatsApp = () => {
         const lista = ottieniSpesa();
-        if (lista.length === 0) {
-            mostraModale("Lista Vuota", "Non c'è nulla da inviare. Aggiungi qualcosa prima!", null, true);
-            return;
-        }
-
+        if (lista.length === 0) { mostraModale("Lista Vuota", "Non c'è nulla da inviare.", null, true); return; }
         let messaggio = "*SP€SA! 🛒*\n_Ecco la lista aggiornata:_\n\n";
         const listaOrdinata = [...lista].sort((a, b) => {
             if (a.completato !== b.completato) return a.completato ? 1 : -1;
             return a.testo.localeCompare(b.testo);
         });
-
         listaOrdinata.forEach(item => {
             const icona = getIconForWord(item.testo);
             const stato = item.completato ? "✅ " : "⬜ "; 
             messaggio += `${stato}${icona} *${item.testo}*\n`;
         });
-
-        const urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(messaggio)}`;
-        window.open(urlWhatsApp, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(messaggio)}`, '_blank');
     };
 
     addBtn.addEventListener('click', () => gestisciAggiunta());
-    inputField.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') gestisciAggiunta();
-    });
-
+    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') gestisciAggiunta(); });
     whatsappBtn.addEventListener('click', gestisciCondivisioneWhatsApp);
     
     clearBtn.addEventListener('click', () => {
         const lista = ottieniSpesa();
-        if (lista.length === 0) {
-            mostraModale("Lista Vuota", "La lista è già vuota!", null, true);
-            return; 
-        }
-
-        mostraModale(
-            "Svuota Carrello", 
-            "Sei sicura di voler cancellare l'intera lista della spesa?", 
-            () => {
-                svuotaLista();
-                aggiornaSchermo();
-            }
-        );
+        if (lista.length === 0) { mostraModale("Lista Vuota", "La lista è già vuota!", null, true); return; }
+        mostraModale("Svuota Carrello", "Sei sicura di voler cancellare l'intera lista della spesa?", () => {
+            svuotaLista();
+            aggiornaSchermo();
+        });
     });
 
     aggiornaSchermo();
