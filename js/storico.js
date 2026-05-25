@@ -50,17 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
             
             aggiornaDashboardNumeri();
             renderGrafico();
-            renderListaSpese(); // Renderizza con i filtri
+            renderListaSpese();
         } catch (error) {
-            console.error("Errore nel caricamento dei dati:", error);
-            historyList.innerHTML = '<li class="history-item glass-panel" style="text-align:center; color: #ff4757; font-weight:bold;">Errore di connessione al Cloud. Riprova più tardi.</li>';
-            meseNomeEl.textContent = "Offline";
+            console.error("Errore nel caricamento:", error);
+            historyList.innerHTML = '<li class="history-item glass-panel" style="text-align:center; color: #ff4757;">Errore di connessione.</li>';
         }
     }
 
     // 2. CALCOLA DASHBOARD IN ALTO
     function aggiornaDashboardNumeri() {
-        if (!allData || allData.length === 0) return;
+        if (!allData || allData.length === 0) {
+            meseTotaleEl.textContent = "0,00 €";
+            topSupermercatoEl.textContent = "-";
+            topSpesaEl.textContent = "0,00 € totali";
+            return;
+        }
 
         const oggi = new Date();
         const meseCorrente = oggi.getMonth(); 
@@ -155,20 +159,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. LISTA CON FILTRI E ORDINAMENTO
     function renderListaSpese() {
         historyList.innerHTML = '';
-        if (!allData || allData.length === 0) return;
+        if (!allData || allData.length === 0) {
+            historyList.innerHTML = '<li class="history-item glass-panel" style="text-align:center;">Nessuna spesa nel database.</li>';
+            return;
+        }
 
-        // Cloniamo l'array originale per non perderlo
         let filtered = [...allData];
 
-        // A. Applica Filtro Ricerca
         const term = filterText.value.toLowerCase();
         if (term !== '') {
             filtered = filtered.filter(item => (item.supermercato || "").toLowerCase().includes(term));
         }
 
-        // B. Applica Ordinamento
         if (sortOrder.value === 'recenti') {
-            filtered.reverse(); // Array originale è cronologico
+            filtered.reverse(); 
         } else if (sortOrder.value === 'prezzo-alto') {
             filtered.sort((a, b) => (parseFloat(b.totale) || 0) - (parseFloat(a.totale) || 0));
         } else if (sortOrder.value === 'prezzo-basso') {
@@ -180,10 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        filtered.forEach((item, index) => {
+        filtered.forEach((item) => {
             const li = document.createElement('li');
             li.className = 'history-item glass-panel';
-            li.style.cursor = 'pointer'; // Rende chiaro che si può cliccare
+            li.style.cursor = 'pointer'; 
 
             const totale = parseFloat(item.totale) || 0;
             const parts = (item.supermercato || "Ignoto").split(',');
@@ -208,13 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="font-size: 0.75rem; color: #4facfe; margin-top: 8px; font-weight: bold;">👉 TOCCA PER I DETTAGLI</div>
             `;
             
-            // Evento Click apre il Modale Dettaglio
             li.addEventListener('click', () => mostraDettaglio(item, brand, icon, gpsData));
             historyList.appendChild(li);
         });
     }
 
-    // 5. GESTIONE MODALE DETTAGLIO
+    // 5. GESTIONE MODALE DETTAGLIO ED ELIMINAZIONE CLOUD
     function mostraDettaglio(item, brand, icon, gps) {
         detailTitle.textContent = `Spesa del ${item.data}`;
         
@@ -240,12 +243,55 @@ document.addEventListener('DOMContentLoaded', () => {
         detailModal.classList.remove('hidden');
         setTimeout(() => detailModal.classList.add('visible'), 10);
 
-        // Eliminazione (Avviso)
-        detailDelete.onclick = () => {
-            if(confirm("Sei sicura di voler eliminare questa spesa dallo storico?")) {
-                alert("Funzione di eliminazione in arrivo! Bisognerà aggiungere una riga di codice nel tuo Google Apps Script.");
-                detailModal.classList.remove('visible');
-                setTimeout(() => detailModal.classList.add('hidden'), 300);
+        // ELIMINAZIONE SUL CLOUD!
+        detailDelete.onclick = async () => {
+            if(confirm("Sei sicura di voler eliminare questa spesa dallo storico in modo permanente?")) {
+                
+                // Bottone in stato "Caricamento"
+                detailDelete.textContent = "Eliminazione... ⏳";
+                detailDelete.disabled = true;
+
+                try {
+                    // Inviamo al Cloud la richiesta di "DELETE" passando la data della spesa
+                    const payload = { action: 'delete', data: item.data };
+                    
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        // Rimuoviamo la riga dalla memoria dell'app per farla sparire istantaneamente
+                        allData = allData.filter(d => d.data !== item.data);
+                        
+                        // Aggiorniamo la grafica (i grafici scendono e la riga sparisce)
+                        aggiornaDashboardNumeri();
+                        renderGrafico();
+                        renderListaSpese();
+                        
+                        // Chiudiamo il modale
+                        detailModal.classList.remove('visible');
+                        setTimeout(() => detailModal.classList.add('hidden'), 300);
+                    } else {
+                        alert("Errore durante l'eliminazione dal Cloud: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Errore Fetch:", error);
+                    // (A volte Google blocca la risposta ma l'eliminazione va a buon fine)
+                    allData = allData.filter(d => d.data !== item.data);
+                    aggiornaDashboardNumeri();
+                    renderGrafico();
+                    renderListaSpese();
+                    
+                    detailModal.classList.remove('visible');
+                    setTimeout(() => detailModal.classList.add('hidden'), 300);
+                } finally {
+                    // Reset bottone
+                    detailDelete.textContent = "Elimina Spesa";
+                    detailDelete.disabled = false;
+                }
             }
         };
     }
@@ -255,11 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => detailModal.classList.add('hidden'), 300);
     });
 
-    // Filtri dinamici "in tempo reale"
     filterText.addEventListener('input', renderListaSpese);
     sortOrder.addEventListener('change', renderListaSpese);
     if(chartPeriodSelect) chartPeriodSelect.addEventListener('change', renderGrafico);
 
-    // Partenza
     fetchStorico();
 });
