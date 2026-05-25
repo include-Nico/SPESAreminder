@@ -16,13 +16,11 @@
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/glass.css">
-    <!-- Importiamo Tesseract.js per leggere gli scontrini (Intelligenza Artificiale OCR) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
     <div class="app-container glass-panel">
         
-        <!-- Header con Tasto per la Dashboard Analitica -->
         <header class="app-header">
             <div>
                 <h1>SP€SA! 🛒</h1>
@@ -31,7 +29,6 @@
             <button id="go-to-history-btn" class="icon-btn" aria-label="Storico Spese">📊</button>
         </header>
         
-        <!-- Barra di inserimento e Microfono -->
         <div class="input-group">
             <button id="mic-btn" class="mic-btn" aria-label="Usa il microfono">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -42,15 +39,11 @@
             <button id="add-btn">Aggiungi</button>
         </div>
 
-        <!-- Contenitore "I Soliti Noti" (Suggerimenti Rapidi a Scorrimento) -->
         <div id="quick-suggestions" class="suggestions-container">
-            <!-- I bottoni verranno generati dinamicamente dal JavaScript (ui.js) -->
-        </div>
+            </div>
 
-        <!-- Lista della Spesa (Raggruppamento Intelligente per Corsia) -->
         <ul id="shopping-list"></ul>
 
-        <!-- Disposizione dei bottoni di azione inferiori -->
         <div class="actions-container">
             <div class="actions-group">
                 <button id="share-whatsapp-btn" class="whatsapp-btn" aria-label="Invia su WhatsApp">
@@ -61,12 +54,10 @@
                 <button id="clear-completed-btn" class="danger-btn">Cancella lista</button>
             </div>
             
-            <!-- Bottone Principale: Registrazione Spesa Cloud -->
             <button id="checkout-btn" class="primary-btn mt-2">🏁 Fine Spesa</button>
         </div>
     </div>
 
-    <!-- Modale Glassmorphism per Avvisi Standard -->
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
             <h3 id="modal-title">Attenzione</h3>
@@ -78,30 +69,35 @@
         </div>
     </div>
 
-    <!-- Modale Avanzato di Registrazione Spesa (Checkout) -->
     <div id="checkout-modal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
             <h3>Registra Spesa 📊</h3>
             <p style="font-size: 0.9rem; margin-bottom: 15px;">Salva i dati per le tue statistiche.</p>
             
-            <!-- Input Valore Economico -->
             <input type="number" id="receipt-total" placeholder="Totale speso (es. 45.50 €)" step="0.01" class="checkout-input">
             
-            <!-- Rilevamento GPS Supermercato -->
+            <label for="supermarket-select" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px; text-align: left; color: #1a202c;">Supermercato:</label>
+            <select id="supermarket-select" class="checkout-input" style="width: 100%; text-align-last: center; font-size: 1rem; margin-bottom: 15px;">
+                <option value="Ignoto">🛒 Altro / Ignoto</option>
+                <option value="Conad">🟠 Conad</option>
+                <option value="Coop">🔴 Coop</option>
+                <option value="Esselunga">🟢 Esselunga</option>
+                <option value="Eurospin">🔵 Eurospin</option>
+                <option value="Lidl">🟡 Lidl</option>
+                <option value="Carrefour">⚪ Carrefour</option>
+            </select>
+            
             <div class="location-box">
-                <button id="get-location-btn" class="small-btn">📍 Rileva Supermercato</button>
+                <button id="get-location-btn" class="small-btn">📍 Rileva Coordinate GPS</button>
                 <p id="location-text">Posizione ignota</p>
             </div>
 
-            <!-- Upload Scontrino OCR -->
             <div class="file-upload-box">
                 <label for="receipt-upload" class="upload-btn">📸 Fotografa Scontrino</label>
-                <!-- L'attributo capture="environment" forza l'uso della fotocamera posteriore su smartphone -->
                 <input type="file" id="receipt-upload" accept="image/*" capture="environment" hidden>
                 <p id="receipt-status">Nessuna foto / OCR in attesa</p>
             </div>
 
-            <!-- Azioni Checkout -->
             <div class="modal-actions" style="margin-top: 20px;">
                 <button id="checkout-cancel" class="modal-btn secondary-btn">Annulla</button>
                 <button id="checkout-confirm" class="modal-btn primary-btn">Salva nel Cloud</button>
@@ -109,13 +105,11 @@
         </div>
     </div>
 
-    <!-- Toast Notification (Pattern "Undo" veloce) -->
     <div id="undo-toast" class="toast hidden">
         <span id="toast-message">Prodotto eliminato</span>
         <button id="toast-undo-btn">ANNULLA</button>
     </div>
 
-    <!-- Script "Killer": Forza la disattivazione e l'eliminazione dei vecchi Service Worker bloccati -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -127,7 +121,6 @@
         }
     </script>
     
-    <!-- Avvio della Logica Javascript Principale -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

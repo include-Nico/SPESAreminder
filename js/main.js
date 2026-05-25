@@ -3,7 +3,6 @@ import { ottieniSpesa, aggiungiItem, toggleCompletato, svuotaLista, rimuoviItem 
 import { renderLista, getIconForWord, renderSuggerimenti } from './ui.js';
 
 // --- CONFIGURAZIONE DATABASE GOOGLE ---
-// Sostituisci questo link con il VERO URL generato da Google Apps Script!
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQSvwCvMGNfY1NISEG04xW-Cr0HVwESXjpkX4mFoqvwXw-VyV_4-a8qIbdKN0cFS22/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutCancel = document.getElementById('checkout-cancel');
     const checkoutConfirm = document.getElementById('checkout-confirm');
     const receiptTotal = document.getElementById('receipt-total');
+    const supermarketSelect = document.getElementById('supermarket-select');
     const getLocationBtn = document.getElementById('get-location-btn');
     const locationText = document.getElementById('location-text');
     const receiptUpload = document.getElementById('receipt-upload');
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- GESTIONE MODALE E TOAST (Invariata) ---
+    // --- GESTIONE MODALE E TOAST ---
     function mostraModale(titolo, messaggio, onConfirm, isAlert = false) {
         modalTitle.textContent = titolo;
         modalMessage.textContent = messaggio;
@@ -178,9 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         micBtn.style.display = 'none';
     }
 
-    // --- NUOVO: GESTIONE FINE SPESA E CHECKOUT ---
-    
-    // Apri Modale Checkout
+    // --- GESTIONE FINE SPESA E CHECKOUT ---
     checkoutBtn.addEventListener('click', () => {
         const lista = ottieniSpesa();
         if (lista.length === 0) {
@@ -190,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Reset campi
         receiptTotal.value = '';
+        supermarketSelect.value = 'Ignoto';
         locationText.textContent = 'Posizione ignota';
         receiptStatus.textContent = 'Nessuna foto / OCR in attesa';
         currentPos = "Posizione ignota";
@@ -199,22 +198,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => checkoutModal.classList.add('visible'), 10);
     });
 
-    // Chiudi Modale Checkout
     checkoutCancel.addEventListener('click', () => {
         checkoutModal.classList.remove('visible');
         setTimeout(() => checkoutModal.classList.add('hidden'), 300);
     });
 
-    // 1. Geolocalizzazione
+    // 1. Geolocalizzazione GPS
     getLocationBtn.addEventListener('click', () => {
         locationText.textContent = "Rilevamento in corso... ⏳";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    // Prende le coordinate
                     const lat = position.coords.latitude.toFixed(5);
                     const lon = position.coords.longitude.toFixed(5);
-                    currentPos = `Coordinate: ${lat}, ${lon}`;
+                    currentPos = `GPS: ${lat} ${lon}`;
                     locationText.textContent = `📍 Rilevato: ${lat}, ${lon}`;
                 },
                 (error) => {
@@ -227,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. OCR Scontrino (Tesseract.js)
+    // 2. OCR Scontrino (Tesseract.js) + AUTO SELECT INTELIGENTE
     receiptUpload.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -235,10 +232,18 @@ document.addEventListener('DOMContentLoaded', () => {
         receiptStatus.textContent = "Analisi immagine in corso... ⏳ (Potrebbe volerci un minuto)";
         
         try {
-            // Avvia Tesseract per leggere l'italiano
             const { data: { text } } = await Tesseract.recognize(file, 'ita');
-            // Pulisce il testo e tiene solo i primi 200 caratteri per evitare di sovraccaricare il database
             currentReceiptText = text.replace(/\n/g, ' ').substring(0, 200) + '...';
+            
+            // --- LOGICA AUTO-RILEVAMENTO DIZIONARIO SUPERMERCATI ---
+            const textLower = text.toLowerCase();
+            if (textLower.includes('conad')) supermarketSelect.value = 'Conad';
+            else if (textLower.includes('coop')) supermarketSelect.value = 'Coop';
+            else if (textLower.includes('esselunga')) supermarketSelect.value = 'Esselunga';
+            else if (textLower.includes('eurospin')) supermarketSelect.value = 'Eurospin';
+            else if (textLower.includes('lidl')) supermarketSelect.value = 'Lidl';
+            else if (textLower.includes('carrefour')) supermarketSelect.value = 'Carrefour';
+            
             receiptStatus.textContent = "✅ Scontrino letto con successo!";
         } catch (err) {
             receiptStatus.textContent = "❌ Errore nella lettura dello scontrino.";
@@ -258,14 +263,19 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutConfirm.textContent = "Salvataggio... ⏳";
         checkoutConfirm.disabled = true;
 
+        // Componiamo la stringa unendo Marchio e GPS separati da virgola per lo storico
+        let infoSupermercato = supermarketSelect.value;
+        if (currentPos !== "Posizione ignota" && currentPos !== "Errore GPS") {
+            infoSupermercato += `, ${currentPos}`;
+        }
+
         const payload = {
             data: new Date().toLocaleString("it-IT"),
-            supermercato: currentPos,
+            supermercato: infoSupermercato,
             totale: totale,
             scontrino: currentReceiptText
         };
 
-        // Invia i dati a Google Apps Script
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
@@ -275,8 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.status === 'success') {
                 checkoutModal.classList.remove('visible');
                 setTimeout(() => checkoutModal.classList.add('hidden'), 300);
-                
-                // Svuota la lista dopo la spesa e avvisa
                 svuotaLista();
                 aggiornaSchermo();
                 mostraModale("Checkout Completato", "Dati salvati nel Cloud con successo! Lista svuotata.", null, true);
@@ -285,14 +293,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .catch(err => {
-            // A volte Google blocca i return per via del CORS, ma i dati vengono salvati lo stesso.
-            // Svuotiamo comunque e avvisiamo.
             checkoutModal.classList.remove('visible');
             setTimeout(() => checkoutModal.classList.add('hidden'), 300);
             svuotaLista();
             aggiornaSchermo();
             mostraModale("Checkout Inviato", "Spesa inviata. Controlla lo Storico per verificare.", null, true);
-            console.error("Fetch warning (spesso innocuo con Google Script):", err);
+            console.error("Fetch warning:", err);
         })
         .finally(() => {
             checkoutConfirm.textContent = "Salva nel Cloud";
