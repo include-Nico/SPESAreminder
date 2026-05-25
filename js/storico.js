@@ -1,6 +1,6 @@
 // js/storico.js
 
-// Sostituisci questo link con lo STESSO URL di Google Apps Script che hai messo in main.js
+// URL del tuo Google Apps Script
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQSvwCvMGNfY1NISEG04xW-Cr0HVwESXjpkX4mFoqvwXw-VyV_4-a8qIbdKN0cFS22/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,16 +13,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyList = document.getElementById('history-list');
     const chartPeriodSelect = document.getElementById('chart-period');
 
-    let expenseChart = null; // Conterrà il grafico Chart.js
-    let allData = []; // Qui salveremo i dati scaricati dal cloud
+    let expenseChart = null; 
+    let allData = []; 
 
     // Torna alla schermata principale
     backBtn.addEventListener('click', () => {
         window.location.href = 'index.html';
     });
 
-    // Funzione comodità per formattare i numeri in Euro (es. 45.5 -> 45,50 €)
+    // Formattazione Euro
     const formatValuta = (val) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val);
+
+    // --- NUOVO: DIZIONARIO VISIVO SUPERMERCATI ---
+    function getBrandIcon(brandName) {
+        const name = brandName.toLowerCase();
+        if (name.includes('conad')) return '🟠';
+        if (name.includes('coop')) return '🔴';
+        if (name.includes('esselunga')) return '🟢';
+        if (name.includes('eurospin')) return '🔵';
+        if (name.includes('lidl')) return '🟡';
+        if (name.includes('carrefour')) return '⚪';
+        return '🛒'; // Default / Ignoto
+    }
 
     // 1. SCARICA I DATI DAL CLOUD
     async function fetchStorico() {
@@ -31,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             allData = data;
             
-            // Appena ha scaricato i dati, avvia le 3 funzioni di disegno
             aggiornaDashboardNumeri();
             renderListaSpese();
             renderGrafico();
@@ -50,48 +61,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const oggi = new Date();
-        const meseCorrente = oggi.getMonth(); // Da 0 a 11
+        const meseCorrente = oggi.getMonth(); 
         const annoCorrente = oggi.getFullYear();
 
         let totaleMese = 0;
-        const supermercatiSpesa = {}; // Oggetto per capire dove si spende di più
+        const supermercatiSpesa = {}; 
 
         allData.forEach(item => {
-            // Estrapola mese e anno dalla data salvata (formato DD/MM/YYYY)
+            if (!item.data) return; // Evita righe vuote
+            
             const [datePart] = item.data.split(','); 
             const [giorno, meseStr, anno] = datePart.trim().split('/');
             const mese = parseInt(meseStr) - 1; 
             const totale = parseFloat(item.totale) || 0;
 
-            // Se la spesa è di questo mese e questo anno, sommala
             if (mese === meseCorrente && parseInt(anno) === annoCorrente) {
                 totaleMese += totale;
             }
 
-            // Calcolo del supermercato top (Prende solo la prima parte per aggregare meglio)
-            const nomeSup = item.supermercato.split(',')[0].substring(0, 20); 
-            if(!supermercatiSpesa[nomeSup]) supermercatiSpesa[nomeSup] = 0;
-            supermercatiSpesa[nomeSup] += totale;
+            // Separiamo il marchio dalle coordinate GPS (es. "Conad, GPS: 45.1, 9.4")
+            const parts = (item.supermercato || "Ignoto").split(',');
+            let brand = parts[0].trim();
+            
+            // Pulizia per vecchi salvataggi o GPS crudi
+            if (brand.includes('Coordinate') || brand.includes('GPS') || brand.includes('ignota')) {
+                brand = 'Ignoto'; 
+            }
+
+            if(!supermercatiSpesa[brand]) supermercatiSpesa[brand] = 0;
+            supermercatiSpesa[brand] += totale;
         });
 
         const nomiMesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
         
-        // Aggiorna l'HTML
         meseTotaleEl.textContent = formatValuta(totaleMese);
         meseNomeEl.textContent = nomiMesi[meseCorrente] + " " + annoCorrente;
 
-        // Trova chi ha vinto tra i supermercati
         let maxSpesa = 0;
         let maxSup = "-";
+        
+        // Trova il supermercato in cui abbiamo speso di più (ignorando "Ignoto" se possibile)
         for (const [sup, spesa] of Object.entries(supermercatiSpesa)) {
-            if (spesa > maxSpesa) {
+            if (spesa > maxSpesa && sup !== 'Ignoto') {
                 maxSpesa = spesa;
                 maxSup = sup;
             }
         }
+        
+        // Se c'è solo roba ignota, usiamo quella
+        if (maxSup === "-" && supermercatiSpesa['Ignoto']) {
+            maxSup = 'Ignoto';
+            maxSpesa = supermercatiSpesa['Ignoto'];
+        }
 
-        // Se è una coordinata GPS, lo abbrevia per bellezza
-        topSupermercatoEl.textContent = maxSup.includes("Coordinate") ? "GPS 📍" : maxSup;
+        // Mostriamo il vincitore con la sua icona
+        if (maxSup !== "-") {
+            topSupermercatoEl.textContent = `${getBrandIcon(maxSup)} ${maxSup}`;
+        } else {
+            topSupermercatoEl.textContent = "-";
+        }
+        
         topSpesaEl.textContent = formatValuta(maxSpesa) + " totali";
     }
 
@@ -103,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Inverte l'array così l'ultima spesa fatta appare per prima in alto
+        // Ultima spesa fatta in cima
         const datiOrdinati = [...allData].reverse();
 
         datiOrdinati.forEach(item => {
@@ -112,35 +141,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const totale = parseFloat(item.totale) || 0;
 
+            // Logica per formattare elegantemente Marchio + GPS
+            const parts = (item.supermercato || "Ignoto").split(',');
+            let brand = parts[0].trim();
+            let gpsData = parts.length > 1 ? parts.slice(1).join(',').trim() : "";
+            
+            // Fix per vecchi inserimenti 
+            if (brand.includes('Coordinate') || brand.includes('GPS') || brand.includes('ignota')) {
+                gpsData = brand.includes('ignota') ? "" : brand;
+                brand = "Ignoto";
+            }
+
+            const icon = getBrandIcon(brand);
+            let locationHtml = `<div class="history-location" style="font-weight: 600; font-size: 1rem;">${icon} ${brand}</div>`;
+            if (gpsData) {
+                locationHtml += `<div style="font-size: 0.75rem; color: #777; margin-top: -5px; padding-left: 24px;">📍 ${gpsData}</div>`;
+            }
+
+            // Se c'è uno scontrino letto correttamente, mostra il box
+            let scontrinoHtml = '';
+            if (item.scontrino && item.scontrino !== "Nessuna foto" && item.scontrino !== "Errore Lettura") {
+                scontrinoHtml = `<div class="history-receipt" style="margin-top: 5px;">📝 "${item.scontrino}"</div>`;
+            }
+
             li.innerHTML = `
                 <div class="history-header">
                     <span class="history-date">${item.data}</span>
                     <span class="history-total">${formatValuta(totale)}</span>
                 </div>
-                <div class="history-location">📍 ${item.supermercato}</div>
-                <div class="history-receipt">📝 "${item.scontrino}"</div>
+                ${locationHtml}
+                ${scontrinoHtml}
             `;
             historyList.appendChild(li);
         });
     }
 
-    // 4. DISEGNA IL GRAFICO (CHART.JS)
+    // 4. DISEGNA IL GRAFICO
     function renderGrafico() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
         const mesiLabels = [];
         const datiSpesa = [];
         
-        // Calcoliamo gli ultimi 6 mesi partendo da oggi a ritroso
         const oggi = new Date();
+        // Calcola a ritroso per 6 mesi
         for (let i = 5; i >= 0; i--) {
             const d = new Date(oggi.getFullYear(), oggi.getMonth() - i, 1);
-            // Crea l'etichetta corta (es. "Gen", "Feb")
             const meseStr = d.toLocaleDateString('it-IT', { month: 'short' });
             mesiLabels.push(meseStr.charAt(0).toUpperCase() + meseStr.slice(1));
             
             let totale = 0;
-            // Somma tutte le spese fatte in quel determinato mese
             allData.forEach(item => {
+                if (!item.data) return;
                 const [datePart] = item.data.split(','); 
                 const parts = datePart.trim().split('/');
                 if (parts.length === 3) {
@@ -154,12 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
             datiSpesa.push(totale);
         }
 
-        // Se c'è già un grafico, lo distrugge prima di ridisegnarlo (previene glitch grafici)
         if (expenseChart) {
             expenseChart.destroy();
         }
 
-        // Genera il grafico!
         expenseChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -167,25 +216,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: 'Spesa Mensile',
                     data: datiSpesa,
-                    borderColor: '#4facfe', // Azzurro neon
-                    backgroundColor: 'rgba(79, 172, 254, 0.2)', // Azzurro trasparente sotto
+                    borderColor: '#4facfe', 
+                    backgroundColor: 'rgba(79, 172, 254, 0.2)', 
                     borderWidth: 3,
                     pointBackgroundColor: '#00f2fe',
                     pointBorderColor: '#fff',
                     pointRadius: 5,
                     fill: true,
-                    tension: 0.4 // Rende la linea morbidamente curva
+                    tension: 0.4 // Linea curva
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false } // Nasconde la legenda inutile
+                    legend: { display: false } 
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.1)' }, // Griglia leggerissima
+                        grid: { color: 'rgba(255,255,255,0.1)' }, 
                         ticks: { color: '#555' }
                     },
                     x: {
@@ -197,9 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Se l'utente cambia tra "Mensile" e "Annuale"
+    // Aggiornamento grafico al cambio select
     chartPeriodSelect.addEventListener('change', () => {
-        // (Per ora ricarica lo stesso grafico a 6 mesi, ma è pronto per essere espanso in futuro!)
         renderGrafico(); 
     });
 
