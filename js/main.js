@@ -3,7 +3,7 @@ import { ottieniSpesa, aggiungiItem, toggleCompletato, svuotaLista, rimuoviItem 
 import { renderLista, getIconForWord, renderSuggerimenti } from './ui.js';
 
 // --- CONFIGURAZIONE DATABASE GOOGLE ---
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQSvwCvMGNfY1NISEG04xW-Cr0HVwESXjpkX4mFoqvwXw-VyV_4-a8qIbdKN0cFS22/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyt_Zyj6RoF_ZhBH7jDy4kN9VT25UMkZVF1T8rPI2LtpM6yMei1ZSJXMhyV4R1Ai_0E/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Referenze Elementi DOM Base
