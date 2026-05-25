@@ -15,12 +15,16 @@
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/glass.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
     <div class="app-container glass-panel">
-        <header>
-            <h1>SP€SA! 🛒</h1>
-            <p class="subtitle">La lista intelligente</p>
+        <header class="app-header">
+            <div>
+                <h1>SP€SA! 🛒</h1>
+                <p class="subtitle">La lista intelligente</p>
+            </div>
+            <button id="go-to-history-btn" class="icon-btn" aria-label="Storico Spese">📊</button>
         </header>
         
         <div class="input-group">
@@ -38,13 +42,16 @@
 
         <ul id="shopping-list"></ul>
 
-        <div class="actions-group">
-            <button id="share-whatsapp-btn" class="whatsapp-btn" aria-label="Invia su WhatsApp">
-                <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.102.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964 1.003-3.588c-.608-1.065-.928-2.294-.929-3.535 0-4.148 3.376-7.525 7.527-7.525 4.149 0 7.526 3.376 7.526 7.525-.001 4.149-3.377 7.526-7.526 7.526z"/>
-                </svg>
-            </button>
-            <button id="clear-completed-btn" class="danger-btn">Cancella lista</button>
+        <div class="actions-container">
+            <div class="actions-group">
+                <button id="share-whatsapp-btn" class="whatsapp-btn" aria-label="Invia su WhatsApp">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
+                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.102.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964 1.003-3.588c-.608-1.065-.928-2.294-.929-3.535 0-4.148 3.376-7.525 7.527-7.525 4.149 0 7.526 3.376 7.526 7.525-.001 4.149-3.377 7.526-7.526 7.526z"/>
+                    </svg>
+                </button>
+                <button id="clear-completed-btn" class="danger-btn">Cancella lista</button>
+            </div>
+            <button id="checkout-btn" class="primary-btn mt-2">🏁 Fine Spesa</button>
         </div>
     </div>
 
@@ -59,6 +66,31 @@
         </div>
     </div>
 
+    <div id="checkout-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <h3>Registra Spesa 📊</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">Salva i dati per le tue statistiche.</p>
+            
+            <input type="number" id="receipt-total" placeholder="Totale speso (es. 45.50 €)" step="0.01" class="checkout-input">
+            
+            <div class="location-box">
+                <button id="get-location-btn" class="small-btn">📍 Rileva Supermercato</button>
+                <p id="location-text">Posizione ignota</p>
+            </div>
+
+            <div class="file-upload-box">
+                <label for="receipt-upload" class="upload-btn">📸 Fotografa Scontrino</label>
+                <input type="file" id="receipt-upload" accept="image/*" capture="environment" hidden>
+                <p id="receipt-status">Nessuna foto / OCR in attesa</p>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button id="checkout-cancel" class="modal-btn secondary-btn">Annulla</button>
+                <button id="checkout-confirm" class="modal-btn primary-btn">Salva nel Cloud</button>
+            </div>
+        </div>
+    </div>
+
     <div id="undo-toast" class="toast hidden">
         <span id="toast-message">Prodotto eliminato</span>
         <button id="toast-undo-btn">ANNULLA</button>
@@ -68,7 +100,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('✅ Service Worker registrato (Offline mode on)'))
+                    .then(reg => console.log('✅ Service Worker registrato'))
                     .catch(err => console.error('❌ Errore Service Worker', err));
             });
         }

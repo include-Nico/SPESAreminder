@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Storico SP€SA!</title>
+    <meta name="theme-color" content="#373b44">
+    <link rel="apple-touch-icon" href="icons/icon.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/glass.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button id="back-btn" class="icon-btn" aria-label="Torna indietro">⬅️</button>
+            <div>
+                <h1 style="font-size: 2rem;">Storico 📊</h1>
+                <p class="subtitle">Le tue statistiche</p>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="stat-card glass-panel">
+                <h4>Spesa Mensile</h4>
+                <h2 id="mese-totale">0.00 €</h2>
+                <p id="mese-nome">Caricamento...</p>
+            </div>
+            <div class="stat-card glass-panel">
+                <h4>Supermercato Top</h4>
+                <h2 id="top-supermercato">-</h2>
+                <p id="top-spesa">0.00 € totali</p>
+            </div>
+        </div>
+
+        <div class="chart-wrapper glass-panel">
+            <div class="chart-header">
+                <h3>Andamento Spese</h3>
+                <select id="chart-period" class="glass-select">
+                    <option value="mensile">Ultimi 6 Mesi</option>
+                    <option value="annuale">Annuale</option>
+                </select>
+            </div>
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+        <h3 class="section-title">Ultime Spese Registrate</h3>
+        <ul id="history-list" class="history-list">
+            <li style="justify-content: center; opacity: 0.7;">Scaricamento dati dal Cloud... ⏳</li>
+        </ul>
+    </div>
+
+    <script type="module" src="js/storico.js"></script>
+</body>
+</html>

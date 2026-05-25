@@ -366,3 +366,220 @@ li.pressing {
     input { grid-column: auto; grid-row: auto; flex: 1; }
     #add-btn { grid-column: auto; grid-row: auto; width: auto; padding: 0 20px; }
 }
+/* --- Aggiunte per Checkout e Header --- */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
+    text-align: left;
+}
+
+.app-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+    transform: scale(1.1);
+}
+
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.mt-2 {
+    margin-top: 12px;
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+/* Modale Checkout specifici */
+.checkout-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.location-box, .file-upload-box {
+    background: rgba(0,0,0,0.05);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.small-btn, .upload-btn {
+    background: #4a5568;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-block;
+    margin-bottom: 5px;
+    transition: all 0.2s ease;
+}
+
+#location-text, #receipt-status {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
+}
+/* --- Aggiunte per la pagina Storico (Analitics) --- */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    padding: 15px;
+    border-radius: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-card h4 {
+    font-size: 0.85rem;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.stat-card h2 {
+    font-size: 1.6rem;
+    color: #1a202c;
+    margin-bottom: 2px;
+}
+
+.stat-card p {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.chart-wrapper {
+    padding: 15px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.chart-header h3 {
+    font-size: 1.1rem;
+    color: #1a202c;
+}
+
+.glass-select {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 5px 10px;
+    border-radius: 10px;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: white;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 2rem;
+}
+
+.history-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 8px;
+    cursor: default;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.history-date {
+    font-size: 0.85rem;
+    color: #555;
+    font-weight: 600;
+}
+
+.history-total {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2ecc71; /* Verde soldi */
+    background: rgba(46, 204, 113, 0.1);
+    padding: 4px 10px;
+    border-radius: 10px;
+}
+
+.history-location {
+    font-size: 0.9rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.history-receipt {
+    font-size: 0.8rem;
+    color: #666;
+    background: rgba(0,0,0,0.03);
+    padding: 8px;
+    border-radius: 8px;
+    width: 100%;
+    font-style: italic;
+    border-left: 3px solid #4facfe;
+}

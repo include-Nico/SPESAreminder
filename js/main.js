@@ -2,8 +2,12 @@
 import { ottieniSpesa, aggiungiItem, toggleCompletato, svuotaLista, rimuoviItem } from './storage.js';
 import { renderLista, getIconForWord, renderSuggerimenti } from './ui.js';
 
+// --- CONFIGURAZIONE DATABASE GOOGLE ---
+// Sostituisci questo link con il VERO URL generato da Google Apps Script!
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQSvwCvMGNfY1NISEG04xW-Cr0HVwESXjpkX4mFoqvwXw-VyV_4-a8qIbdKN0cFS22/exec';
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Referenze Elementi DOM
+    // Referenze Elementi DOM Base
     const inputField = document.getElementById('item-input');
     const addBtn = document.getElementById('add-btn');
     const listContainer = document.getElementById('shopping-list');
@@ -12,20 +16,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const micBtn = document.getElementById('mic-btn');
     const suggestionsContainer = document.getElementById('quick-suggestions');
 
-    // Referenze Toast di Annullamento Rapido
+    // Referenze Checkout e Scontrino
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const checkoutModal = document.getElementById('checkout-modal');
+    const checkoutCancel = document.getElementById('checkout-cancel');
+    const checkoutConfirm = document.getElementById('checkout-confirm');
+    const receiptTotal = document.getElementById('receipt-total');
+    const getLocationBtn = document.getElementById('get-location-btn');
+    const locationText = document.getElementById('location-text');
+    const receiptUpload = document.getElementById('receipt-upload');
+    const receiptStatus = document.getElementById('receipt-status');
+
+    // Variabili per salvare i dati del checkout temporaneamente
+    let currentPos = "Posizione ignota";
+    let currentReceiptText = "Nessuna foto";
+
+    // Referenze Toast e Modale
     const toastElement = document.getElementById('undo-toast');
     const toastUndoBtn = document.getElementById('toast-undo-btn');
-    let toastTimer; // Timer per far sparire il toast
-    let lastDeletedItem = null; // Memoria temporanea dell'oggetto cancellato
+    let toastTimer; 
+    let lastDeletedItem = null; 
 
-    // Referenze Modale Personalizzato
     const modalOverlay = document.getElementById('custom-modal');
     const modalTitle = document.getElementById('modal-title');
     const modalMessage = document.getElementById('modal-message');
     
-    // --- FUNZIONI DI SUPPORTO ---
+    // Bottone Storico
+    const goToHistoryBtn = document.getElementById('go-to-history-btn');
+    if (goToHistoryBtn) {
+        goToHistoryBtn.addEventListener('click', () => {
+            window.location.href = 'storico.html';
+        });
+    }
 
-    // Gestione Modale (Usato solo per grandi avvisi come "Svuota Tutto" o errori)
+    // --- GESTIONE MODALE E TOAST (Invariata) ---
     function mostraModale(titolo, messaggio, onConfirm, isAlert = false) {
         modalTitle.textContent = titolo;
         modalMessage.textContent = messaggio;
@@ -45,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmBtn.classList.add('secondary-btn');
         } else {
             cancelBtn.classList.remove('hidden');
-            confirmBtn.textContent = 'Elimina';
+            confirmBtn.textContent = 'Conferma';
             confirmBtn.classList.add('danger-btn');
             confirmBtn.classList.remove('secondary-btn');
         }
@@ -65,21 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Gestione Toast (Avviso a scomparsa per l'eliminazione rapida)
     function mostraToast(item) {
-        lastDeletedItem = item; // Salva l'oggetto appena eliminato
-        
-        // Mostra il toast con animazione a molla
+        lastDeletedItem = item; 
         toastElement.classList.remove('hidden');
         setTimeout(() => toastElement.classList.add('visible'), 10);
-
-        // Se c'era già un toast aperto, resetta il timer
         clearTimeout(toastTimer);
-        
-        // Nasconde automaticamente il toast dopo 4 secondi
-        toastTimer = setTimeout(() => {
-            nascondiToast();
-        }, 4000);
+        toastTimer = setTimeout(() => nascondiToast(), 4000);
     }
 
     function nascondiToast() {
@@ -88,24 +103,19 @@ document.addEventListener('DOMContentLoaded', () => {
         lastDeletedItem = null;
     }
 
-    // Tasto "ANNULLA" sul Toast
     toastUndoBtn.addEventListener('click', () => {
         if (lastDeletedItem) {
-            // Re-inserisce l'oggetto esattamente com'era (mantenendo lo stato completato)
             const lista = ottieniSpesa();
             lista.push(lastDeletedItem);
             localStorage.setItem('spesa_mamma_data', JSON.stringify(lista));
-            
             aggiornaSchermo();
             nascondiToast();
         }
     });
 
     // --- FUNZIONI PRINCIPALI DELL'APP ---
-
     const aggiornaSchermo = () => {
         const listaAttuale = ottieniSpesa();
-        // Disegna la lista attivando l'Intelligenza di Ordinamento!
         renderLista(listaAttuale, listContainer, handleToggle, handleLongPress);
     };
 
@@ -114,27 +124,22 @@ document.addEventListener('DOMContentLoaded', () => {
         aggiornaSchermo();
     };
 
-    // ELIMINAZIONE RAPIDA: Dito premuto a lungo
     const handleLongPress = (item) => {
-        rimuoviItem(item.id); // Elimina subito
-        aggiornaSchermo();    // Ricarica la grafica
-        mostraToast(item);    // Fa comparire il Toast di salvataggio!
+        rimuoviItem(item.id); 
+        aggiornaSchermo();    
+        mostraToast(item);    
     };
 
     const gestisciAggiunta = (testoDaAggiungere = null) => {
-        // Se riceve un testo diretto (es. dai Suggerimenti Rapidi) usa quello
         const testo = (typeof testoDaAggiungere === 'string') ? testoDaAggiungere : inputField.value.trim();
-        
         if (testo !== '') {
             aggiungiItem(testo);
             inputField.value = ''; 
             aggiornaSchermo();
-            // Focus solo se è su schermi grandi
             if (window.innerWidth > 768 && typeof testoDaAggiungere !== 'string') inputField.focus(); 
         }
     };
 
-    // Genera i bottoni dei Suggerimenti Rapidi
     renderSuggerimenti(suggestionsContainer, gestisciAggiunta);
 
     // --- MICROFONO ---
@@ -173,7 +178,129 @@ document.addEventListener('DOMContentLoaded', () => {
         micBtn.style.display = 'none';
     }
 
-    // --- WHATSAPP ---
+    // --- NUOVO: GESTIONE FINE SPESA E CHECKOUT ---
+    
+    // Apri Modale Checkout
+    checkoutBtn.addEventListener('click', () => {
+        const lista = ottieniSpesa();
+        if (lista.length === 0) {
+            mostraModale("Lista Vuota", "Aggiungi almeno un prodotto prima di fare checkout!", null, true);
+            return;
+        }
+        
+        // Reset campi
+        receiptTotal.value = '';
+        locationText.textContent = 'Posizione ignota';
+        receiptStatus.textContent = 'Nessuna foto / OCR in attesa';
+        currentPos = "Posizione ignota";
+        currentReceiptText = "Nessuna foto";
+
+        checkoutModal.classList.remove('hidden');
+        setTimeout(() => checkoutModal.classList.add('visible'), 10);
+    });
+
+    // Chiudi Modale Checkout
+    checkoutCancel.addEventListener('click', () => {
+        checkoutModal.classList.remove('visible');
+        setTimeout(() => checkoutModal.classList.add('hidden'), 300);
+    });
+
+    // 1. Geolocalizzazione
+    getLocationBtn.addEventListener('click', () => {
+        locationText.textContent = "Rilevamento in corso... ⏳";
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Prende le coordinate
+                    const lat = position.coords.latitude.toFixed(5);
+                    const lon = position.coords.longitude.toFixed(5);
+                    currentPos = `Coordinate: ${lat}, ${lon}`;
+                    locationText.textContent = `📍 Rilevato: ${lat}, ${lon}`;
+                },
+                (error) => {
+                    locationText.textContent = "❌ Errore GPS. Permesso negato?";
+                    currentPos = "Errore GPS";
+                }
+            );
+        } else {
+            locationText.textContent = "GPS non supportato dal browser.";
+        }
+    });
+
+    // 2. OCR Scontrino (Tesseract.js)
+    receiptUpload.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        receiptStatus.textContent = "Analisi immagine in corso... ⏳ (Potrebbe volerci un minuto)";
+        
+        try {
+            // Avvia Tesseract per leggere l'italiano
+            const { data: { text } } = await Tesseract.recognize(file, 'ita');
+            // Pulisce il testo e tiene solo i primi 200 caratteri per evitare di sovraccaricare il database
+            currentReceiptText = text.replace(/\n/g, ' ').substring(0, 200) + '...';
+            receiptStatus.textContent = "✅ Scontrino letto con successo!";
+        } catch (err) {
+            receiptStatus.textContent = "❌ Errore nella lettura dello scontrino.";
+            currentReceiptText = "Errore Lettura";
+            console.error(err);
+        }
+    });
+
+    // 3. Salva nel Database (Google Fogli)
+    checkoutConfirm.addEventListener('click', () => {
+        const totale = parseFloat(receiptTotal.value);
+        if (isNaN(totale) || totale <= 0) {
+            alert("Inserisci un totale valido.");
+            return;
+        }
+
+        checkoutConfirm.textContent = "Salvataggio... ⏳";
+        checkoutConfirm.disabled = true;
+
+        const payload = {
+            data: new Date().toLocaleString("it-IT"),
+            supermercato: currentPos,
+            totale: totale,
+            scontrino: currentReceiptText
+        };
+
+        // Invia i dati a Google Apps Script
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                checkoutModal.classList.remove('visible');
+                setTimeout(() => checkoutModal.classList.add('hidden'), 300);
+                
+                // Svuota la lista dopo la spesa e avvisa
+                svuotaLista();
+                aggiornaSchermo();
+                mostraModale("Checkout Completato", "Dati salvati nel Cloud con successo! Lista svuotata.", null, true);
+            } else {
+                alert("Errore nel salvataggio: " + result.message);
+            }
+        })
+        .catch(err => {
+            // A volte Google blocca i return per via del CORS, ma i dati vengono salvati lo stesso.
+            // Svuotiamo comunque e avvisiamo.
+            checkoutModal.classList.remove('visible');
+            setTimeout(() => checkoutModal.classList.add('hidden'), 300);
+            svuotaLista();
+            aggiornaSchermo();
+            mostraModale("Checkout Inviato", "Spesa inviata. Controlla lo Storico per verificare.", null, true);
+            console.error("Fetch warning (spesso innocuo con Google Script):", err);
+        })
+        .finally(() => {
+            checkoutConfirm.textContent = "Salva nel Cloud";
+            checkoutConfirm.disabled = false;
+        });
+    });
+
+    // --- WHATSAPP E AZIONI STANDARD ---
     const gestisciCondivisioneWhatsApp = () => {
         const lista = ottieniSpesa();
         if (lista.length === 0) {
@@ -182,8 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let messaggio = "*SP€SA! 🛒*\n_Ecco la lista aggiornata:_\n\n";
-        
-        // Ordiniamo la lista anche per WhatsApp, così arriva divisa per reparti!
         const listaOrdinata = [...lista].sort((a, b) => {
             if (a.completato !== b.completato) return a.completato ? 1 : -1;
             return a.testo.localeCompare(b.testo);
@@ -199,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(urlWhatsApp, '_blank');
     };
 
-    // --- EVENT LISTENERS AGGIUNTIVI ---
     addBtn.addEventListener('click', () => gestisciAggiunta());
     inputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') gestisciAggiunta();
@@ -224,6 +348,5 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    // Avvio dell'app al caricamento
     aggiornaSchermo();
 });
