@@ -419,7 +419,7 @@ li.pressing {
     font-size: 1.1rem;
 }
 
-/* --- BRAND ICONS & SELECTOR MODERNO --- */
+/* --- IMMAGINI BRAND (Loghi Caricati) --- */
 .supermarket-selector {
     display: flex;
     gap: 15px;
@@ -456,38 +456,24 @@ li.pressing {
     transform: translateY(-5px) scale(1.1);
 }
 
-.brand-logo {
+/* Regole per costringere le immagini ad essere tutte rotonde e perfette */
+.brand-logo-img {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    color: white;
-    font-size: 1.5rem;
+    object-fit: cover; /* o 'contain' se preferisci che il logo stia tutto dentro senza tagliarsi ai bordi */
+    background: white; 
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-    text-transform: uppercase;
     border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
-.brand-logo.small-logo {
+.brand-logo-img.small-logo {
     width: 32px;
     height: 32px;
-    font-size: 0.9rem;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     border-width: 1px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     flex-shrink: 0;
 }
-
-/* Colori e Gradienti Ufficiali Brand */
-.brand-ignoto { background: linear-gradient(135deg, #9ca3af, #4b5563); }
-.brand-conad { background: linear-gradient(135deg, #f97316, #ea580c); }
-.brand-coop { background: linear-gradient(135deg, #ef4444, #b91c1c); text-transform: lowercase; }
-.brand-esselunga { background: linear-gradient(135deg, #facc15, #22c55e); color: #1a202c; }
-.brand-eurospin { background: linear-gradient(135deg, #3b82f6, #facc15); color: #1a202c; }
-.brand-lidl { background: linear-gradient(135deg, #1d4ed8, #eab308); }
-.brand-carrefour { background: linear-gradient(135deg, #3b82f6, #ef4444); }
 
 
 /* Storico Dashboard */

@@ -27,16 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     backBtn.addEventListener('click', () => window.location.href = 'index.html');
     const formatValuta = (val) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val);
 
-    // Nuovo sistema di Icone HTML
+    // Usa i file caricati per lo storico dinamicamente
     function getBrandIconHTML(brandName) {
-        const name = brandName.toLowerCase();
-        if (name.includes('conad')) return '<div class="brand-logo brand-conad small-logo">C</div>';
-        if (name.includes('coop')) return '<div class="brand-logo brand-coop small-logo" style="font-size:0.65rem;">coop</div>';
-        if (name.includes('esselunga')) return '<div class="brand-logo brand-esselunga small-logo">E</div>';
-        if (name.includes('eurospin')) return '<div class="brand-logo brand-eurospin small-logo">E</div>';
-        if (name.includes('lidl')) return '<div class="brand-logo brand-lidl small-logo">L</div>';
-        if (name.includes('carrefour')) return '<div class="brand-logo brand-carrefour small-logo">C</div>';
-        return '<div class="brand-logo brand-ignoto small-logo">?</div>';
+        let fileName = brandName.toLowerCase();
+        if (fileName === 'ignoto') fileName = 'altro';
+        // onerror gestisce il caso in cui l'immagine non venga trovata mettendo l'icona dell'app
+        return `<img src="icons/${fileName}.png" class="brand-logo-img small-logo" alt="${brandName}" onerror="this.src='icons/icon.png'">`;
     }
 
     function mostraModale(titolo, messaggio, onConfirm) {
