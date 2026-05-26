@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailClose = document.getElementById('detail-close');
     const detailDelete = document.getElementById('detail-delete');
 
-    // Modale Personalizzato Vetro per avvisi
     const modalOverlay = document.getElementById('custom-modal');
     const modalTitle = document.getElementById('modal-title');
     const modalMessage = document.getElementById('modal-message');
@@ -28,18 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
     backBtn.addEventListener('click', () => window.location.href = 'index.html');
     const formatValuta = (val) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val);
 
-    function getBrandIcon(brandName) {
+    // Nuovo sistema di Icone HTML
+    function getBrandIconHTML(brandName) {
         const name = brandName.toLowerCase();
-        if (name.includes('conad')) return '🟠';
-        if (name.includes('coop')) return '🔴';
-        if (name.includes('esselunga')) return '🟢';
-        if (name.includes('eurospin')) return '🔵';
-        if (name.includes('lidl')) return '🟡';
-        if (name.includes('carrefour')) return '⚪';
-        return '🛒'; 
+        if (name.includes('conad')) return '<div class="brand-logo brand-conad small-logo">C</div>';
+        if (name.includes('coop')) return '<div class="brand-logo brand-coop small-logo" style="font-size:0.65rem;">coop</div>';
+        if (name.includes('esselunga')) return '<div class="brand-logo brand-esselunga small-logo">E</div>';
+        if (name.includes('eurospin')) return '<div class="brand-logo brand-eurospin small-logo">E</div>';
+        if (name.includes('lidl')) return '<div class="brand-logo brand-lidl small-logo">L</div>';
+        if (name.includes('carrefour')) return '<div class="brand-logo brand-carrefour small-logo">C</div>';
+        return '<div class="brand-logo brand-ignoto small-logo">?</div>';
     }
 
-    // Apre il modale personalizzato
     function mostraModale(titolo, messaggio, onConfirm) {
         modalTitle.textContent = titolo;
         modalMessage.textContent = messaggio;
@@ -110,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (maxSup === "-" && supermercatiSpesa['Ignoto']) { maxSup = 'Ignoto'; maxSpesa = supermercatiSpesa['Ignoto']; }
 
-        topSupermercatoEl.textContent = maxSup !== "-" ? `${getBrandIcon(maxSup)} ${maxSup}` : "-";
+        topSupermercatoEl.innerHTML = maxSup !== "-" ? `<div style="display:flex; align-items:center; justify-content:center; gap:8px;">${getBrandIconHTML(maxSup)} <span>${maxSup}</span></div>` : "-";
         topSpesaEl.textContent = formatValuta(maxSpesa) + " totali";
     }
 
@@ -163,24 +162,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const totale = parseFloat(item.totale) || 0;
             let brand = item.supermercato.trim();
-            const icon = getBrandIcon(brand);
+            const iconHTML = getBrandIconHTML(brand);
 
             li.innerHTML = `
                 <div class="history-header"><span class="history-date">${item.data}</span><span class="history-total">${formatValuta(totale)}</span></div>
-                <div class="history-location" style="font-weight: 600;">${icon} ${brand}</div>
+                <div class="history-location" style="font-weight: 600;">${iconHTML} <span>${brand}</span></div>
                 <div style="font-size: 0.75rem; color: #4facfe; margin-top: 8px; font-weight: bold;">👉 TOCCA PER I DETTAGLI</div>
             `;
-            li.addEventListener('click', () => mostraDettaglio(item, brand, icon));
+            li.addEventListener('click', () => mostraDettaglio(item, brand, iconHTML));
             historyList.appendChild(li);
         });
     }
 
-    function mostraDettaglio(item, brand, icon) {
+    function mostraDettaglio(item, brand, iconHTML) {
         detailTitle.textContent = `Spesa del ${item.data}`;
         
         let articoliHTML = '';
         if (item.articoli && item.articoli !== "Nessun articolo") {
-            // Separa la lista tramite virgola e crea dei pallini
             const listaProdotti = item.articoli.split(',').map(prod => `• ${prod.trim()}`).join('<br>');
             articoliHTML = `<div style="background: rgba(0,0,0,0.03); padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 3px solid #4facfe;">
                                 <strong style="color: #4facfe; font-size: 0.9rem;">🛒 Articoli Acquistati:</strong><br>
@@ -189,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         detailContent.innerHTML = `
-            <div style="font-size: 1.1rem; margin-bottom: 15px;"><strong>Supermercato:</strong> ${icon} ${brand}</div>
+            <div style="font-size: 1.1rem; margin-bottom: 15px; display:flex; align-items:center; gap:8px;"><strong>Supermercato:</strong> ${iconHTML} <span>${brand}</span></div>
             <div style="font-size: 1.4rem; color: #1a202c; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 10px; display: inline-block;"><strong>Totale:</strong> <span style="color: #2ecc71;">${formatValuta(item.totale)}</span></div>
             ${articoliHTML}
         `;
@@ -197,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         detailModal.classList.remove('hidden');
         setTimeout(() => detailModal.classList.add('visible'), 10);
 
-        // Eliminazione usando il nostro Custom Modal In Vetro
         detailDelete.onclick = () => {
             mostraModale("Elimina Spesa", "Sei sicura di voler eliminare questa spesa dallo storico in modo permanente?", async () => {
                 

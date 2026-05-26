@@ -63,18 +63,40 @@
             
             <input type="number" id="receipt-total" placeholder="Totale speso (es. 45.50 €)" step="0.01" class="checkout-input">
             
-            <label for="supermarket-select" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px; text-align: left; color: #1a202c;">Supermercato:</label>
-            <select id="supermarket-select" class="checkout-input" style="width: 100%; text-align-last: center; font-size: 1rem; margin-bottom: 15px;">
-                <option value="Ignoto">🛒 Altro / Ignoto</option>
-                <option value="Conad">🟠 Conad</option>
-                <option value="Coop">🔴 Coop</option>
-                <option value="Esselunga">🟢 Esselunga</option>
-                <option value="Eurospin">🔵 Eurospin</option>
-                <option value="Lidl">🟡 Lidl</option>
-                <option value="Carrefour">⚪ Carrefour</option>
-            </select>
+            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 10px; text-align: left; color: #1a202c;">Seleziona Supermercato:</label>
+            
+            <div class="supermarket-selector" id="supermarket-selector">
+                <div class="brand-option active" data-value="Ignoto">
+                    <div class="brand-logo brand-ignoto">?</div>
+                    <span>Altro</span>
+                </div>
+                <div class="brand-option" data-value="Conad">
+                    <div class="brand-logo brand-conad">C</div>
+                    <span>Conad</span>
+                </div>
+                <div class="brand-option" data-value="Coop">
+                    <div class="brand-logo brand-coop" style="font-size: 0.8rem;">coop</div>
+                    <span>Coop</span>
+                </div>
+                <div class="brand-option" data-value="Esselunga">
+                    <div class="brand-logo brand-esselunga">E</div>
+                    <span>Esselunga</span>
+                </div>
+                <div class="brand-option" data-value="Eurospin">
+                    <div class="brand-logo brand-eurospin">E</div>
+                    <span>Eurospin</span>
+                </div>
+                <div class="brand-option" data-value="Lidl">
+                    <div class="brand-logo brand-lidl">L</div>
+                    <span>Lidl</span>
+                </div>
+                <div class="brand-option" data-value="Carrefour">
+                    <div class="brand-logo brand-carrefour">C</div>
+                    <span>Carrefour</span>
+                </div>
+            </div>
 
-            <div class="modal-actions" style="margin-top: 20px;">
+            <div class="modal-actions" style="margin-top: 10px;">
                 <button id="checkout-cancel" class="modal-btn secondary-btn">Annulla</button>
                 <button id="checkout-confirm" class="modal-btn primary-btn">Salva nel Cloud</button>
             </div>

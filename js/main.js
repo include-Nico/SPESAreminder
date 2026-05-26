@@ -18,7 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutCancel = document.getElementById('checkout-cancel');
     const checkoutConfirm = document.getElementById('checkout-confirm');
     const receiptTotal = document.getElementById('receipt-total');
-    const supermarketSelect = document.getElementById('supermarket-select');
+    
+    // Logica per le nuove icone selezionabili dei supermercati
+    let selectedSupermarket = 'Ignoto';
+    const brandOptions = document.querySelectorAll('.brand-option');
+
+    brandOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            brandOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            selectedSupermarket = option.getAttribute('data-value');
+        });
+    });
 
     const toastElement = document.getElementById('undo-toast');
     const toastUndoBtn = document.getElementById('toast-undo-btn');
@@ -145,7 +156,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         receiptTotal.value = '';
-        supermarketSelect.value = 'Ignoto';
+        
+        // Resetta la selezione supermercato a "Ignoto" di default ad ogni apertura
+        brandOptions.forEach(opt => opt.classList.remove('active'));
+        document.querySelector('.brand-option[data-value="Ignoto"]').classList.add('active');
+        selectedSupermarket = 'Ignoto';
+
         checkoutModal.classList.remove('hidden');
         setTimeout(() => checkoutModal.classList.add('visible'), 10);
     });
@@ -165,15 +181,14 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutConfirm.textContent = "Salvataggio... ⏳";
         checkoutConfirm.disabled = true;
 
-        // Estrae i nomi degli articoli attualmente in lista
         const lista = ottieniSpesa();
         const listaArticoli = lista.map(item => item.testo).join(', ');
 
         const payload = {
             data: new Date().toLocaleString("it-IT"),
-            supermercato: supermarketSelect.value,
+            supermercato: selectedSupermarket,
             totale: totale,
-            articoli: listaArticoli // Salviamo la lista nel foglio Google!
+            articoli: listaArticoli
         };
 
         fetch(GOOGLE_SCRIPT_URL, {
