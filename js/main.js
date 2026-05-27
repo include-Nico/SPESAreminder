@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutConfirm = document.getElementById('checkout-confirm');
     const receiptTotal = document.getElementById('receipt-total');
     
-    // Logica per le nuove icone selezionabili dei supermercati
+    // Logica per le icone selezionabili dei supermercati
     let selectedSupermarket = 'Ignoto';
     const brandOptions = document.querySelectorAll('.brand-option');
 

@@ -27,11 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     backBtn.addEventListener('click', () => window.location.href = 'index.html');
     const formatValuta = (val) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val);
 
-    // Usa i file caricati per lo storico dinamicamente
     function getBrandIconHTML(brandName) {
         let fileName = brandName.toLowerCase();
+        
         if (fileName === 'ignoto') fileName = 'altro';
-        // onerror gestisce il caso in cui l'immagine non venga trovata mettendo l'icona dell'app
+        if (fileName === 'il gigante') fileName = 'gigante'; 
+        
         return `<img src="icons/${fileName}.png" class="brand-logo-img small-logo" alt="${brandName}" onerror="this.src='icons/icon.png'">`;
     }
 
